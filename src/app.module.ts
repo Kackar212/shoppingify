@@ -19,6 +19,7 @@ import configuration from './config/configuration';
         username: configService.get('database.user'),
         password: configService.get('database.password'),
         database: configService.get('database.name'),
+        synchronize: true,
         autoLoadEntities: true,
       }),
       inject: [ConfigService],
