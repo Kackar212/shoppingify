@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -27,7 +28,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new NotFoundEntity('User', `name=${name}`);
+      throw new NotFoundEntity('User', `email=${email}`);
     }
 
     return user;
@@ -37,7 +38,11 @@ export class UserService {
     return this.userRepository.update({ name }, userData);
   }
 
-  public create(user: User) {
+  public create(user: DeepPartial<User>) {
+    return this.userRepository.create(user);
+  }
+
+  public save(user: User) {
     return this.userRepository.save(user);
   }
 
@@ -49,6 +54,10 @@ export class UserService {
 
   public async getUserIfRefreshTokenMatches(name: string, refreshToken: string) {
     const user = await this.findByName(name);
+
+    if (!user.refreshToken) {
+      return null;
+    }
 
     const isRefreshTokenEqual = await bcrypt.compare(refreshToken, user.refreshToken);
 
