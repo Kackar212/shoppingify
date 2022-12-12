@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
 import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,17 +17,13 @@ export class AuthService {
   async getUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
 
-    if (!user) {
-      return null;
-    }
-
     const isPasswordEqual = await bcrypt.compare(password, user.password);
 
-    if (isPasswordEqual) {
-      return user;
+    if (!isPasswordEqual) {
+      throw new HttpException('Wrong credentials', HttpStatus.BAD_REQUEST);
     }
 
-    return null;
+    return user;
   }
 
   public createAccessToken(user: User) {
@@ -53,10 +50,7 @@ export class AuthService {
       path: '/',
     };
 
-    const optionsReducer = (
-      result: string,
-      [option, optionValue]: [string, unknown],
-    ) => {
+    const optionsReducer = (result: string, [option, optionValue]: [string, unknown]) => {
       if (option && optionValue) {
         result += `${option}=${optionValue};`;
       }
@@ -68,10 +62,7 @@ export class AuthService {
       return result;
     };
 
-    const optionsAsString = Object.entries(tokenCookieOptions).reduce(
-      optionsReducer,
-      '',
-    );
+    const optionsAsString = Object.entries(tokenCookieOptions).reduce(optionsReducer, '');
 
     return `${name}=${value}; ${optionsAsString}`;
   }
@@ -81,14 +72,12 @@ export class AuthService {
   }
 
   public createRefreshTokenCookie(token: string) {
-    const expirationTime = this.configService.get(
-      'REFRESH_JWT_EXPIRATION_TIME',
-    );
+    const expirationTime = this.configService.get('REFRESH_JWT_EXPIRATION_TIME');
 
-    return this.createTokenCookie(
-      'RefreshToken',
-      token,
-      `${expirationTime / 1000}`,
-    );
+    return this.createTokenCookie('RefreshToken', token, `${expirationTime / 1000}`);
+  }
+
+  public async createUser(userData: CreateUserDto) {
+    const user = this.userService.create(userData);
   }
 }
