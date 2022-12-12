@@ -79,5 +79,13 @@ export class AuthService {
 
   public async createUser(userData: CreateUserDto) {
     const user = this.userService.create(userData);
+
+    try {
+      return await this.userService.save(user);
+    } catch (e) {
+      if (e.errno === 1062) {
+        throw new HttpException('User with that email already exists', HttpStatus.BAD_REQUEST);
+      }
+    }
   }
 }
