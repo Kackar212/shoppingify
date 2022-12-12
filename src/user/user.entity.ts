@@ -14,9 +14,9 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  refreshToken: string;
+  @Column({ nullable: true })
+  refreshToken?: string;
 
   @Column({ default: false })
-  isActive: boolean;
+  isActive?: boolean;
 }
