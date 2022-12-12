@@ -46,4 +46,16 @@ export class UserService {
 
     return this.update(name, { refreshToken: hashedRefreshToken });
   }
+
+  public async getUserIfRefreshTokenMatches(name: string, refreshToken: string) {
+    const user = await this.findByName(name);
+
+    const isRefreshTokenEqual = await bcrypt.compare(refreshToken, user.refreshToken);
+
+    if (!isRefreshTokenEqual) {
+      return null;
+    }
+
+    return user;
+  }
 }
