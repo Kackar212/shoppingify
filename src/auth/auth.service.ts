@@ -79,4 +79,16 @@ export class AuthService {
   public createAccessTokenCookie(token: string) {
     return this.createTokenCookie('AccessToken', token, '60');
   }
+
+  public createRefreshTokenCookie(token: string) {
+    const expirationTime = this.configService.get(
+      'REFRESH_JWT_EXPIRATION_TIME',
+    );
+
+    return this.createTokenCookie(
+      'RefreshToken',
+      token,
+      `${expirationTime / 1000}`,
+    );
+  }
 }
