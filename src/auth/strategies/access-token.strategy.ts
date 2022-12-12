@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UserService,
