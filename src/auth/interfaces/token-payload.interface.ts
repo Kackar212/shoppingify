@@ -1,0 +1,3 @@
+interface TokenPayload {
+  name: string;
+}
