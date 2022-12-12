@@ -1,4 +1,5 @@
 export default () => ({
+  jwtSecret: process.env.JWT_SECRET,
   database: {
     host: process.env.DB_HOST,
     name: process.env.DB_NAME,
