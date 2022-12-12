@@ -19,6 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           signOptions: { expiresIn: '60s' },
         };
       },
+      inject: [ConfigService],
     }),
   ],
   providers: [AuthService, LocalStrategy],
