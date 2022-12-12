@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
 import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -43,5 +44,40 @@ export class AuthService {
         expiresIn: this.configService.get('REFRESH_JWT_EXPIRATION_TIME'),
       },
     );
+  }
+
+  private createTokenCookie(
+    name: string,
+    value: string,
+    options: CookieOptions,
+  ) {
+    const tokenCookieOptions = {
+      ...options,
+      httpOnly: true,
+      secure: true,
+      path: '/',
+    };
+
+    const optionsReducer = (
+      result: string,
+      [option, optionValue]: [string, unknown],
+    ) => {
+      if (option && optionValue) {
+        result += `${option}=${optionValue};`;
+      }
+
+      if (option && !optionValue) {
+        result += `${option};`;
+      }
+
+      return result;
+    };
+
+    const optionsAsString = Object.entries(tokenCookieOptions).reduce(
+      optionsReducer,
+      '',
+    );
+
+    return `${name}=${value}; ${optionsAsString}`;
   }
 }
