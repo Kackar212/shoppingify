@@ -75,4 +75,8 @@ export class AuthService {
 
     return `${name}=${value}; ${optionsAsString}`;
   }
+
+  public createAccessTokenCookie(token: string) {
+    return this.createTokenCookie('AccessToken', token, '60');
+  }
 }
