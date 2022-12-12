@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -25,5 +26,11 @@ export class UserService {
 
   public create(user: User) {
     return this.userRepository.save(user);
+  }
+
+  public async setRefreshToken(name: string, refreshToken: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    return this.update(name, { refreshToken: hashedRefreshToken });
   }
 }
