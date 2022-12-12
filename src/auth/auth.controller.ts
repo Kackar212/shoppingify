@@ -1,7 +1,8 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { HttpCode, Response } from '@nestjs/common/decorators';
-import { Response as HttpResponse } from 'express';
+import { Request, Response as HttpResponse } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User as UserEntity } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
@@ -30,5 +31,11 @@ export class AuthController {
     return response.json({
       status: 200,
     });
+  }
+
+  @HttpCode(201)
+  @Post('register')
+  public async register(@Body() registerData: CreateUserDto) {
+    return this.authService.createUser(registerData);
   }
 }
