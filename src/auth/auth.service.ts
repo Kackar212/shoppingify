@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
 import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -46,13 +45,9 @@ export class AuthService {
     );
   }
 
-  private createTokenCookie(
-    name: string,
-    value: string,
-    options: CookieOptions,
-  ) {
+  private createTokenCookie(name: string, value: string, maxAge: string) {
     const tokenCookieOptions = {
-      ...options,
+      'max-age': maxAge,
       httpOnly: true,
       secure: true,
       path: '/',
