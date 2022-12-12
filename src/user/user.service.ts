@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
+import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 
 @Injectable()
 export class UserService {
@@ -12,12 +13,24 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  public findByName(name: string) {
-    return this.userRepository.findOne({ where: { name } });
+  public async findByName(name: string) {
+    const user = await this.userRepository.findOne({ where: { name } });
+
+    if (!user) {
+      throw new NotFoundEntity('User', `name=${name}`);
+    }
+
+    return user;
   }
 
-  public findByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+  public async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundEntity('User', `name=${name}`);
+    }
+
+    return user;
   }
 
   public update(name: string, userData: QueryDeepPartialEntity<User>) {
