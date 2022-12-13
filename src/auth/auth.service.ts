@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
@@ -6,7 +6,7 @@ import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Request, Response } from 'express';
-import { ResponseMessage } from 'src/common/constants';
+import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/common/constants';
 
 @Injectable()
 export class AuthService {
@@ -17,15 +17,33 @@ export class AuthService {
   ) {}
 
   async getUser(email: string, password: string) {
-    const user = await this.userService.findByEmail(email);
+    try {
+      const user = await this.userService.findByEmail(email);
 
-    const isPasswordEqual = await bcrypt.compare(password, user.password);
+      const isPasswordEqual = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordEqual) {
-      throw new HttpException('Wrong credentials', HttpStatus.BAD_REQUEST);
+      if (!isPasswordEqual) {
+        throw new BadRequestException(Exceptions.WRONG_CREDENTIALS);
+      }
+
+      return user;
+    } catch (e) {
+      const { code } = e.getResponse();
+
+      switch (code) {
+        case ExceptionCode.WRONG_CREDENTIALS: {
+          throw e;
+        }
+
+        case ExceptionCode.NOT_FOUND_ENTITY: {
+          throw new BadRequestException(Exceptions.WRONG_CREDENTIALS);
+        }
+
+        default: {
+          throw new BadRequestException(Exceptions.BAD_REQUEST);
+        }
+      }
     }
-
-    return user;
   }
 
   public createAccessToken(user: User) {
@@ -87,8 +105,14 @@ export class AuthService {
 
       return await this.userService.save(user);
     } catch (e) {
-      if (e.errno === 1062) {
-        throw new HttpException('User with that email already exists', HttpStatus.BAD_REQUEST);
+      switch (e.errno) {
+        case DatabaseError.ERR_DUPLICATE_ENTRY: {
+          throw new BadRequestException(Exceptions.USER_ALREADY_EXISTS);
+        }
+
+        default: {
+          throw new BadRequestException(Exceptions.BAD_REQUEST);
+        }
       }
     }
   }

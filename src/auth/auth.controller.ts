@@ -1,10 +1,9 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, UseFilters } from '@nestjs/common';
 import { HttpCode, Req } from '@nestjs/common/decorators';
 import { Request } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User as UserEntity } from 'src/user/user.entity';
-import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ResponseDto } from 'src/common/dto/response.dto';
@@ -12,10 +11,7 @@ import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)

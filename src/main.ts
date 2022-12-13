@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from 'src/common/filters/bad-request.filter';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -14,6 +15,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get('Reflector')));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);
 }

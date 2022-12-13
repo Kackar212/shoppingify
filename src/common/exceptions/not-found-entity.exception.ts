@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { NotFoundException, HttpStatus } from '@nestjs/common';
 
-export class NotFoundEntity extends HttpException {
-  constructor(entity: string, where: string) {
-    super(`${entity} with ${where} does not exist`, HttpStatus.NOT_FOUND);
+export class NotFoundEntity extends NotFoundException {
+  constructor(errorObject: { message: string; code: string; where: string }) {
+    super({ status: HttpStatus.NOT_FOUND, ...errorObject });
   }
 }

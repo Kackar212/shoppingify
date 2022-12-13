@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Exceptions } from 'src/common/constants';
 
 @Injectable()
 export class UserService {
@@ -18,7 +19,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { name } });
 
     if (!user) {
-      throw new NotFoundEntity('User', `name=${name}`);
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`name=${name}`));
     }
 
     return user;
@@ -28,7 +29,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new NotFoundEntity('User', `email=${email}`);
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`email=${email}`));
     }
 
     return user;
