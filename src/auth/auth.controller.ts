@@ -8,6 +8,7 @@ import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ResponseDto } from 'src/common/dto/response.dto';
+import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +31,15 @@ export class AuthController {
   @Post('register')
   public async register(@Body() registerData: CreateUserDto) {
     return this.authService.createUser(registerData);
+  }
+
+  @HttpCode(200)
+  @UseGuards(RefreshJwtAuthGuard)
+  @Post('refresh')
+  public refresh(
+    @User() user: UserEntity,
+    @Req() request: Request,
+  ): Promise<ResponseDto<UserEntity>> {
+    return this.authService.login(user, request);
   }
 }
