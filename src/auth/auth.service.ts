@@ -5,6 +5,8 @@ import { JwtService } from '@nestjs/jwt/dist';
 import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { Request, Response } from 'express';
+import { ResponseMessage } from 'src/common/constants';
 
 @Injectable()
 export class AuthService {
@@ -89,5 +91,24 @@ export class AuthService {
         throw new HttpException('User with that email already exists', HttpStatus.BAD_REQUEST);
       }
     }
+  }
+
+  public async login(user: User, request: Request) {
+    const response = request.res as Response;
+
+    const accessToken = await this.createAccessToken(user);
+    const refreshToken = await this.createRefreshToken(user);
+    const accessTokenCookie = this.createAccessTokenCookie(accessToken);
+    const refreshTokenCookie = this.createRefreshTokenCookie(refreshToken);
+
+    await this.userService.setRefreshToken(user.name, refreshToken);
+
+    response.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    return {
+      message: ResponseMessage.UserLoggedIn,
+      data: user,
+      status: 200,
+    };
   }
 }
