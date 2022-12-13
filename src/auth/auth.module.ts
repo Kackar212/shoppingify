@@ -16,9 +16,10 @@ import { RefreshTokenStrategy } from 'src/auth/strategies/refresh-token.strategy
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory(configService: ConfigService) {
+        const { expirationTime, secret } = configService.get('accessToken');
         return {
-          secret: configService.get('jwtSecret'),
-          signOptions: { expiresIn: '60s' },
+          secret,
+          signOptions: { expiresIn: expirationTime },
         };
       },
       inject: [ConfigService],

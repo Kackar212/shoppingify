@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, HttpStatus } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
@@ -10,6 +10,9 @@ import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/c
 
 @Injectable()
 export class AuthService {
+  private readonly AccessTokenName = 'AccessToken';
+  private readonly RefreshTokenName = 'RefreshToken';
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -53,16 +56,18 @@ export class AuthService {
   }
 
   public createRefreshToken({ name }: User) {
+    const { expirationTime, secret } = this.configService.get('refreshToken');
+
     return this.jwtService.signAsync(
       { name },
       {
-        secret: this.configService.get('REFRESH_JWT_SECRET'),
-        expiresIn: this.configService.get('REFRESH_JWT_EXPIRATION_TIME'),
+        secret,
+        expiresIn: expirationTime,
       },
     );
   }
 
-  private createTokenCookie(name: string, value: string, maxAge: string) {
+  private createTokenCookie(name: string, value: string, maxAge: number) {
     const tokenCookieOptions = {
       'max-age': maxAge,
       httpOnly: true,
@@ -88,13 +93,15 @@ export class AuthService {
   }
 
   public createAccessTokenCookie(token: string) {
-    return this.createTokenCookie('AccessToken', token, '60');
+    const { expirationTime } = this.configService.get('accessToken');
+
+    return this.createTokenCookie(this.AccessTokenName, token, expirationTime);
   }
 
   public createRefreshTokenCookie(token: string) {
-    const expirationTime = this.configService.get('REFRESH_JWT_EXPIRATION_TIME');
+    const { expirationTime } = this.configService.get('refreshToken');
 
-    return this.createTokenCookie('RefreshToken', token, `${expirationTime / 1000}`);
+    return this.createTokenCookie(this.RefreshTokenName, token, expirationTime);
   }
 
   public async createUser(userData: CreateUserDto) {
@@ -132,7 +139,7 @@ export class AuthService {
     return {
       message: ResponseMessage.UserLoggedIn,
       data: user,
-      status: 200,
+      status: HttpStatus.OK,
     };
   }
 }

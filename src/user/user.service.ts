@@ -48,7 +48,8 @@ export class UserService {
   }
 
   public async setRefreshToken(name: string, refreshToken: string) {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const hashRounds = 12;
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, hashRounds);
 
     return this.update(name, { refreshToken: hashedRefreshToken });
   }
