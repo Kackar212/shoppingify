@@ -1,5 +1,6 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { HttpCode, Response } from '@nestjs/common/decorators';
+import { HttpCode, Response, UseInterceptors } from '@nestjs/common/decorators';
+import { ClassSerializerInterceptor } from '@nestjs/common/serializer';
 import { Request, Response as HttpResponse } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -9,6 +10,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
