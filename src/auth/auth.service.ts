@@ -81,6 +81,8 @@ export class AuthService {
     const user = this.userService.create(userData);
 
     try {
+      user.password = await bcrypt.hash(userData.password, 10);
+
       return await this.userService.save(user);
     } catch (e) {
       if (e.errno === 1062) {
