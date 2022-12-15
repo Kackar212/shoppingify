@@ -67,6 +67,12 @@ export class AuthService {
     );
   }
 
+  public createActivationToken(name: string) {
+    const { expirationTime, secret } = this.configService.get('activationToken');
+
+    return this.jwtService.signAsync({ name }, { secret, expiresIn: expirationTime });
+  }
+
   private createTokenCookie(name: string, value: string, maxAge: number) {
     const tokenCookieOptions = {
       'max-age': maxAge,
