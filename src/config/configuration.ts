@@ -1,5 +1,6 @@
 const DEFAULT_ACCESS_TOKEN_EXP_TIME = '60';
 const DEFAULT_REFRESH_TOKEN_EXP_TIME = '7200';
+const DEFAULT_ACTIVATION_TOKEN_EXP_TIME = '1800';
 const DEFAULT_DATABASE_PORT = '3306';
 const DEFAULT_SMTP_PORT = '587';
 
@@ -12,6 +13,12 @@ export default () => ({
     secret: process.env.REFRESH_JWT_SECRET,
     expirationTime: parseInt(
       process.env.REFRESH_JWT_EXPIRATION_TIME || DEFAULT_REFRESH_TOKEN_EXP_TIME,
+    ),
+  },
+  activationToken: {
+    secret: process.env.ACTIVATION_JWT_SECRET,
+    expirationTime: parseInt(
+      process.env.ACTIVATION_JWT_EXPIRATION_TIME || DEFAULT_ACTIVATION_TOKEN_EXP_TIME,
     ),
   },
   database: {
