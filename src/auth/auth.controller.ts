@@ -1,5 +1,16 @@
-import { Body, Controller, Post, UseGuards, HttpCode, Req, HttpStatus } from '@nestjs/common';
-import { Request } from 'express';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  HttpCode,
+  Req,
+  HttpStatus,
+  Get,
+  Query,
+  Res,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User as UserEntity } from 'src/user/user.entity';
@@ -7,6 +18,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ResponseDto } from 'src/common/dto/response.dto';
 import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
+import { ActivationJwtAuthGuard } from './guards/activation-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -36,5 +48,18 @@ export class AuthController {
     @Req() request: Request,
   ): Promise<ResponseDto<UserEntity>> {
     return this.authService.login(user, request);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ActivationJwtAuthGuard)
+  @Get('activate-account/:token')
+  public async activateAccount(
+    @User() user: UserEntity,
+    @Query('redirect') redirect: string,
+    @Res() response: Response,
+  ) {
+    await this.authService.activateUser(user);
+
+    response.redirect(redirect);
   }
 }

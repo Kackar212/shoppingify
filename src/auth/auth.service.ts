@@ -181,4 +181,8 @@ export class AuthService {
       status: HttpStatus.OK,
     };
   }
+
+  public async activateUser(user: User) {
+    return await this.userService.update(user.name, { isActive: true, activationToken: '' });
+  }
 }
