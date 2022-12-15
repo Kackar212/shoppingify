@@ -39,4 +39,7 @@ export default () => ({
     from: process.env.MAIL_FROM_ADDRESS,
     templatesDir: process.env.MAIL_TEMPLATES_DIR,
   },
+  app: {
+    url: process.env.APP_URL,
+  },
 });
