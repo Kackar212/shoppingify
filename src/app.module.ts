@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import configuration from './config/configuration';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 @Module({
   imports: [
@@ -23,6 +25,31 @@ import configuration from './config/configuration';
         autoLoadEntities: true,
       }),
       inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        const { auth, host, port, from, templatesDir } = configService.get('mail');
+
+        return {
+          transport: {
+            host,
+            port,
+            auth,
+          },
+          defaults: {
+            from,
+          },
+          template: {
+            dir: templatesDir,
+            adapter: new PugAdapter(),
+            options: {
+              strict: true,
+            },
+          },
+        };
+      },
     }),
     AuthModule,
     UserModule,
