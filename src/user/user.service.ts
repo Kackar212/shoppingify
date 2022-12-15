@@ -5,7 +5,6 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
-import { CreateUserDto } from './dto/create-user.dto';
 import { Exceptions } from 'src/common/constants';
 
 @Injectable()
@@ -64,6 +63,22 @@ export class UserService {
     const isRefreshTokenEqual = await bcrypt.compare(refreshToken, user.refreshToken);
 
     if (!isRefreshTokenEqual) {
+      return null;
+    }
+
+    return user;
+  }
+
+  public async getUserIfActivationTokenMatches(name: string, activationToken: string) {
+    const user = await this.findByName(name);
+
+    if (!user.activationToken) {
+      return null;
+    }
+
+    const isActivationTokenEqual = await bcrypt.compare(activationToken, user.activationToken);
+
+    if (!isActivationTokenEqual) {
       return null;
     }
 
