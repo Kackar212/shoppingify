@@ -1,5 +1,4 @@
-import { IsString } from 'class-validator';
-import { IsEmail, IsAlphanumeric, Length, Matches } from 'class-validator';
+import { IsEmail, IsAlphanumeric, Length, Matches, IsString, IsUrl } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -15,4 +14,7 @@ export class CreateUserDto {
   @IsString()
   @Length(8, 30)
   password: string;
+
+  @IsUrl()
+  redirect: string;
 }
