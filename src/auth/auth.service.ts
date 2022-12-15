@@ -7,6 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/common/constants';
+import { MailerService } from '@nestjs-modules/mailer';
+
+const ACTIVATION_PAGE_PATH = 'auth/activate-account';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +20,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async getUser(email: string, password: string) {
@@ -110,13 +114,42 @@ export class AuthService {
     return this.createTokenCookie(this.RefreshTokenName, token, expirationTime);
   }
 
+  public createActivationURL(token: string, redirect: string) {
+    const url = new URL(`${ACTIVATION_PAGE_PATH}/${token}`, this.configService.get('app.url'));
+    url.searchParams.append('redirect', redirect);
+
+    return url.toString();
+  }
+
+  public async sendActivationMail(user: User, activationToken: string, redirect: string) {
+    const activationPageURL = this.createActivationURL(activationToken, redirect);
+
+    return this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Account activation',
+      template: 'account-activation',
+      context: {
+        activationPageURL,
+      },
+    });
+  }
+
   public async createUser(userData: CreateUserDto) {
     const user = this.userService.create(userData);
+    const { redirect } = userData;
 
     try {
-      user.password = await bcrypt.hash(userData.password, 10);
+      const activationToken = await this.createActivationToken(user.name);
+      const hashRounds = 10;
 
-      return await this.userService.save(user);
+      user.password = await bcrypt.hash(user.password, hashRounds);
+      user.activationToken = await bcrypt.hash(activationToken, hashRounds);
+
+      const savedUser = await this.userService.save(user);
+
+      this.sendActivationMail(savedUser, activationToken, redirect);
+
+      return savedUser;
     } catch (e) {
       switch (e.errno) {
         case DatabaseError.ERR_DUPLICATE_ENTRY: {

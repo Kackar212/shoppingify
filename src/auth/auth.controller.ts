@@ -1,5 +1,4 @@
-import { Body, Controller, Post, UseGuards, UseFilters } from '@nestjs/common';
-import { HttpCode, Req } from '@nestjs/common/decorators';
+import { Body, Controller, Post, UseGuards, HttpCode, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -25,8 +24,8 @@ export class AuthController {
 
   @HttpCode(201)
   @Post('register')
-  public async register(@Body() registerData: CreateUserDto) {
-    return this.authService.createUser(registerData);
+  public async register(@Body() userRegistrationData: CreateUserDto) {
+    return this.authService.createUser(userRegistrationData);
   }
 
   @HttpCode(200)
