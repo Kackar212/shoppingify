@@ -25,6 +25,10 @@ export class User {
   @Exclude()
   isActive?: boolean;
 
+  @Column({ nullable: true })
+  @Exclude()
+  activationToken?: string;
+
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }
