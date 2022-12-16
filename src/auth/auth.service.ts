@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, HttpStatus } from '@nestjs/common';
+import { Injectable, BadRequestException, HttpStatus, ConflictException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist';
@@ -197,5 +197,28 @@ export class AuthService {
     } catch {
       return true;
     }
+  }
+
+  public async resendActivationMail(user: User, redirect: string) {
+    if (user.isActive) {
+      throw new ConflictException(Exceptions.ACCOUNT_ALREADY_ACTIVATED);
+    }
+
+    const isUserActivationTokenInvalid = await this.isActivationTokenInvalid(user.activationToken!);
+
+    if (!isUserActivationTokenInvalid) {
+      throw new ConflictException(Exceptions.TOKEN_STILL_VALID);
+    }
+
+    const activationToken = await this.createActivationToken(user.name);
+
+    await this.userService.update(user.name, { ...user, activationToken });
+    this.sendActivationMail(user, activationToken, redirect);
+
+    return {
+      message: ResponseMessage.ActivationMailResent,
+      data: {},
+      status: HttpStatus.OK,
+    };
   }
 }

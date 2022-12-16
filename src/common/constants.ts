@@ -1,6 +1,7 @@
 export const ResponseMessage = {
   UserLoggedIn: 'User logged in successfully!',
   UserCreated: 'User created successfully!',
+  ActivationMailResent: 'Mail sent successfully!',
 } as const;
 
 export const DatabaseError = {
@@ -14,6 +15,8 @@ const NOT_FOUND_ENTITY = 'NOT_FOUND_ENTITY';
 const NOT_FOUND = 'NOT_FOUND';
 const UNAUTHORIZED = 'UNAUTHORIZED';
 const FORBIDDEN = 'FORBIDDEN';
+const TOKEN_STILL_VALID = 'TOKEN_STILL_VALID';
+const ACCOUNT_ALREADY_ACTIVATED = 'ACCOUNT_ALREADY_ACTIVATED';
 
 export const Exceptions = {
   USER_ALREADY_EXISTS: { message: 'User already exists!', code: USER_ALREADY_EXISTS },
@@ -24,6 +27,14 @@ export const Exceptions = {
     code: NOT_FOUND_ENTITY,
     where,
   }),
+  TOKEN_STILL_VALID: {
+    message: 'Previous activation token is still valid',
+    code: TOKEN_STILL_VALID,
+  },
+  ACCOUNT_ALREADY_ACTIVATED: {
+    message: 'Account is already activated',
+    code: ACCOUNT_ALREADY_ACTIVATED,
+  },
 } as const;
 
 export const ExceptionCode = {
@@ -34,4 +45,6 @@ export const ExceptionCode = {
   NOT_FOUND,
   UNAUTHORIZED,
   FORBIDDEN,
+  TOKEN_STILL_VALID,
+  ACCOUNT_ALREADY_ACTIVATED,
 };

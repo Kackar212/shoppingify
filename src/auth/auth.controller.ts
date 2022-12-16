@@ -19,6 +19,8 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ResponseDto } from 'src/common/dto/response.dto';
 import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
 import { ActivationJwtAuthGuard } from './guards/activation-token.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RedirectDto } from '../common/dto/redirect.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -61,5 +63,15 @@ export class AuthController {
     await this.authService.activateUser(user);
 
     response.redirect(redirect);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @Post('resend-activation-mail')
+  public async resendActivationMail(
+    @User() user: UserEntity,
+    @Body() { redirect }: RedirectDto,
+  ): Promise<ResponseDto<{}>> {
+    return this.authService.resendActivationMail(user, redirect);
   }
 }
