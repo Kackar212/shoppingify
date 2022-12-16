@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import configuration from './config/configuration';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
     }),
     AuthModule,
     UserModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
