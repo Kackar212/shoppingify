@@ -18,6 +18,7 @@ const UNAUTHORIZED = 'UNAUTHORIZED';
 const FORBIDDEN = 'FORBIDDEN';
 const TOKEN_STILL_VALID = 'TOKEN_STILL_VALID';
 const ACCOUNT_ALREADY_ACTIVATED = 'ACCOUNT_ALREADY_ACTIVATED';
+const PASSWORD_ALREADY_RESETED = 'PASSWORD_ALREADY_RESETED';
 
 export const Exceptions = {
   USER_ALREADY_EXISTS: { message: 'User already exists!', code: USER_ALREADY_EXISTS },
@@ -36,6 +37,10 @@ export const Exceptions = {
     message: 'Account is already activated',
     code: ACCOUNT_ALREADY_ACTIVATED,
   },
+  PASSWORD_ALREADY_RESETED: {
+    message: 'Password is already reseted',
+    code: PASSWORD_ALREADY_RESETED,
+  },
 } as const;
 
 export const ExceptionCode = {
@@ -48,4 +53,5 @@ export const ExceptionCode = {
   FORBIDDEN,
   TOKEN_STILL_VALID,
   ACCOUNT_ALREADY_ACTIVATED,
+  PASSWORD_ALREADY_RESETED,
 };
