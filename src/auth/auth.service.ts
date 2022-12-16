@@ -8,6 +8,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/common/constants';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ExtractJwt } from 'passport-jwt';
 
 const ACTIVATION_PAGE_PATH = 'auth/activate-account';
 
@@ -184,5 +185,17 @@ export class AuthService {
 
   public async activateUser(user: User) {
     return await this.userService.update(user.name, { isActive: true, activationToken: '' });
+  }
+
+  public async isActivationTokenInvalid(token: string) {
+    try {
+      await this.jwtService.verifyAsync<User>(token, {
+        secret: this.configService.get('activationToken.secret'),
+      });
+
+      return false;
+    } catch {
+      return true;
+    }
   }
 }
