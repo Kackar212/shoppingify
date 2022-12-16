@@ -220,4 +220,15 @@ export class AuthService {
       status: HttpStatus.OK,
     };
   }
+
+  private sendNewPasswordMail(email: string, newPassword: string) {
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'New password request',
+      template: 'new-password',
+      context: {
+        newPassword,
+      },
+    });
+  }
 }
