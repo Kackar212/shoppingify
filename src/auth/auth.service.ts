@@ -231,4 +231,33 @@ export class AuthService {
       },
     });
   }
+
+  public async sendNewPassword(email: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (user.isPasswordReseted) {
+      throw new ConflictException(Exceptions.PASSWORD_ALREADY_RESETED);
+    }
+
+    const { randomBytes } = await import('node:crypto');
+
+    const newPassword = randomBytes(24).toString('base64');
+
+    const hashRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, hashRounds);
+
+    await this.userService.update(user.name, {
+      ...user,
+      password: hashedNewPassword,
+      isPasswordReseted: true,
+    });
+
+    this.sendNewPasswordMail(user.email, newPassword);
+
+    return {
+      message: ResponseMessage.NewPassword,
+      data: {},
+      status: HttpStatus.OK,
+    };
+  }
 }
