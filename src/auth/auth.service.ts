@@ -8,7 +8,6 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/common/constants';
 import { MailerService } from '@nestjs-modules/mailer';
-import { ExtractJwt } from 'passport-jwt';
 
 const ACTIVATION_PAGE_PATH = 'auth/activate-account';
 
