@@ -149,7 +149,11 @@ export class AuthService {
 
       this.sendActivationMail(savedUser, activationToken, redirect);
 
-      return savedUser;
+      return {
+        message: ResponseMessage.UserCreated,
+        data: savedUser,
+        status: HttpStatus.CREATED,
+      };
     } catch (e) {
       switch (e.errno) {
         case DatabaseError.ERR_DUPLICATE_ENTRY: {

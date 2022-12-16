@@ -39,7 +39,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  public async register(@Body() userRegistrationData: CreateUserDto) {
+  public async register(
+    @Body() userRegistrationData: CreateUserDto,
+  ): Promise<ResponseDto<UserEntity>> {
     return this.authService.createUser(userRegistrationData);
   }
 
