@@ -2,6 +2,7 @@ export const ResponseMessage = {
   UserLoggedIn: 'User logged in successfully!',
   UserCreated: 'User created successfully!',
   ActivationMailResent: 'Mail sent successfully!',
+  NewPassword: 'Mail with new password was sent if provided email exists in our database',
 } as const;
 
 export const DatabaseError = {
