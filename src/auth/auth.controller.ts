@@ -21,6 +21,7 @@ import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
 import { ActivationJwtAuthGuard } from './guards/activation-token.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RedirectDto } from '../common/dto/redirect.dto';
+import { NewPasswordDto } from './dto/new-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -73,5 +74,11 @@ export class AuthController {
     @Body() { redirect }: RedirectDto,
   ): Promise<ResponseDto<{}>> {
     return this.authService.resendActivationMail(user, redirect);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  public resetPassword(@Body() { email }: NewPasswordDto): Promise<ResponseDto<{}>> {
+    return this.authService.sendNewPassword(email);
   }
 }
