@@ -29,6 +29,10 @@ export class User {
   @Exclude()
   activationToken?: string;
 
+  @Column({ default: false })
+  @Exclude()
+  isPasswordReseted: boolean;
+
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }
