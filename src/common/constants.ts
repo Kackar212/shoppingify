@@ -7,6 +7,7 @@ export const ResponseMessage = {
 
 export const DatabaseError = {
   ERR_DUPLICATE_ENTRY: 1062,
+  ERR_NO_DEFAULT_FOR_FIELD: 1364,
 } as const;
 
 const USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS';
