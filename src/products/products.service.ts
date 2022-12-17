@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BadRequestException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoriesService } from 'src/categories/categories.service';
 import { DatabaseError, Exceptions } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { Repository } from 'typeorm';
@@ -11,8 +9,6 @@ import { Product } from './product.entity';
 @Injectable()
 export class ProductsService {
   constructor(
-    private readonly categoriesService: CategoriesService,
-
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) {}
@@ -35,5 +31,9 @@ export class ProductsService {
     }
 
     return product;
+  }
+
+  get(id: number) {
+    return this.productRepository.findBy({ id });
   }
 }
