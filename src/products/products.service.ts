@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DatabaseError, Exceptions } from 'src/common/constants';
+import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -30,7 +30,11 @@ export class ProductsService {
       }
     }
 
-    return product;
+    return {
+      message: ResponseMessage.ProductCreated,
+      data: product,
+      status: HttpStatus.CREATED,
+    };
   }
 
   get(id: number) {
