@@ -9,12 +9,15 @@ export class Product {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   note: string;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  @ManyToOne(() => Category, (category) => category.products, {
+    eager: true,
+    cascade: true,
+  })
   category: Category;
 }
