@@ -37,7 +37,13 @@ export class ProductsService {
     };
   }
 
-  get(id: number) {
-    return this.productRepository.findBy({ id });
+  async get(id: number) {
+    const product = await this.productRepository.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`id=${id}`));
+    }
+
+    return product;
   }
 }
