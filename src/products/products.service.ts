@@ -44,6 +44,10 @@ export class ProductsService {
       throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`id=${id}`));
     }
 
-    return product;
+    return {
+      message: ResponseMessage.ProductFound,
+      data: product,
+      status: HttpStatus.OK,
+    };
   }
 }

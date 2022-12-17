@@ -4,6 +4,7 @@ export const ResponseMessage = {
   ActivationMailResent: 'Mail sent successfully!',
   NewPassword: 'Mail with new password was sent if provided email exists in our database',
   ProductCreated: 'Product created successfully!',
+  ProductFound: 'Product found!',
 } as const;
 
 export const DatabaseError = {

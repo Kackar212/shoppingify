@@ -14,7 +14,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  get(@Param('id') id: number) {
+  get(@Param('id') id: number): Promise<ResponseDto<Product>> {
     return this.productsService.get(id);
   }
 }
