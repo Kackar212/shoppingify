@@ -8,6 +8,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
+import { ShoppingListModule } from './shopping-list/shopping-list.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { CategoriesModule } from './categories/categories.module';
     UserModule,
     ProductsModule,
     CategoriesModule,
+    ShoppingListModule,
   ],
 })
 export class AppModule {}
