@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
 
 @Entity()
 export class User {
@@ -32,6 +33,9 @@ export class User {
   @Column({ default: false })
   @Exclude()
   isPasswordReseted: boolean;
+
+  @OneToMany(() => ShoppingList, (shoppingList) => shoppingList.user, { eager: true })
+  shoppingLists: ShoppingList[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
