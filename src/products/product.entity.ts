@@ -1,5 +1,6 @@
 import { Category } from 'src/categories/category.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ShoppingListProduct } from 'src/shopping-list/shopping-list-product.entity';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -20,4 +21,7 @@ export class Product {
     cascade: true,
   })
   category: Category;
+
+  @OneToMany(() => ShoppingListProduct, (shoppingListProduct) => shoppingListProduct.product)
+  listItems: ShoppingListProduct[];
 }
