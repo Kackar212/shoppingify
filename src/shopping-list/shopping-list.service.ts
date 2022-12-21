@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
-import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
 
 @Injectable()
@@ -10,14 +10,11 @@ export class ShoppingListService {
   constructor(
     @InjectRepository(ShoppingList)
     private readonly shoppingListRepository: Repository<ShoppingList>,
-
-    @InjectRepository(ShoppingListProduct)
-    private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
   ) {}
 
   public async getActiveList(user: User) {
     const activeList = await this.shoppingListRepository.findOne({
-      where: { status: 'active', user },
+      where: { status: STATUS.ACTIVE, user },
       relations: ['products', 'products.product'],
     });
 
@@ -26,7 +23,7 @@ export class ShoppingListService {
     }
 
     return await this.shoppingListRepository.save({
-      status: 'active',
+      status: STATUS.ACTIVE,
       products: [],
       user,
     });
