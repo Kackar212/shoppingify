@@ -5,11 +5,13 @@ export const ResponseMessage = {
   NewPassword: 'Mail with new password was sent if provided email exists in our database',
   ProductCreated: 'Product created successfully!',
   ProductFound: 'Product found!',
+  ProductAdded: 'Product added to list successfully!',
 } as const;
 
 export const DatabaseError = {
   ERR_DUPLICATE_ENTRY: 1062,
   ERR_NO_DEFAULT_FOR_FIELD: 1364,
+  ERR_NO_REFERENCED_ROW: 1452,
 } as const;
 
 const USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS';
