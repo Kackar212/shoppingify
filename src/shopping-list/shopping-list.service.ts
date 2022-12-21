@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
+import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
+import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
+import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
 
 @Injectable()
@@ -10,6 +14,9 @@ export class ShoppingListService {
   constructor(
     @InjectRepository(ShoppingList)
     private readonly shoppingListRepository: Repository<ShoppingList>,
+
+    @InjectRepository(ShoppingListProduct)
+    private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
   ) {}
 
   public async getActiveList(user: User) {
@@ -27,5 +34,39 @@ export class ShoppingListService {
       products: [],
       user,
     });
+  }
+
+  public async addProduct(user: User, products: ShoppingListProductDto[]) {
+    const shoppingList = await this.getActiveList(user);
+
+    const newProducts = products.filter(({ product: { id } }) => {
+      const product = shoppingList.products.find(({ product }) => product.id === id);
+
+      if (product) {
+        product.quantity += 1;
+
+        return false;
+      }
+
+      return true;
+    });
+
+    try {
+      shoppingList.products.push(...this.shoppingListProductRepository.create(newProducts));
+
+      await this.shoppingListRepository.save(shoppingList);
+
+      return {
+        message: ResponseMessage.ProductAdded,
+        data: shoppingList,
+        status: HttpStatus.OK,
+      };
+    } catch (e) {
+      switch (e.errno) {
+        case DatabaseError.ERR_NO_REFERENCED_ROW: {
+          throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`productId=${e.parameters[1]}`));
+        }
+      }
+    }
   }
 }
