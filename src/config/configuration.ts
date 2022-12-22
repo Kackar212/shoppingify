@@ -27,7 +27,6 @@ export default () => ({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     port: parseInt(process.env.DB_PORT || DEFAULT_DATABASE_PORT),
-    type: process.env.DB_TYPE,
   },
   mail: {
     host: process.env.MAIL_HOST,
@@ -41,5 +40,8 @@ export default () => ({
   },
   app: {
     url: process.env.APP_URL,
+  },
+  cors: {
+    origin: process.env.CORS_ORIGIN,
   },
 });
