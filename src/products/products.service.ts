@@ -1,5 +1,6 @@
-import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CategoriesService } from 'src/categories/categories.service';
 import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async create(productData: CreateProductDto) {
@@ -47,6 +49,28 @@ export class ProductsService {
     return {
       message: ResponseMessage.ProductFound,
       data: product,
+      status: HttpStatus.OK,
+    };
+  }
+
+  // TODO: Add pagination
+  async getAllGroupedByCategory() {
+    let [categories] = await this.categoriesService.getCategoriesWithProductsAndCount();
+
+    const transformedCategories = await Promise.all(
+      categories.map(async (category) => {
+        const [products] = await this.productRepository.findAndCount({ where: { category } });
+
+        return {
+          ...category,
+          products,
+        };
+      }),
+    );
+
+    return {
+      message: `All products`,
+      data: transformedCategories,
       status: HttpStatus.OK,
     };
   }
