@@ -1,4 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Category } from './category.entity';
 
 @Injectable()
-export class CategoriesService {}
+export class CategoriesService {
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
+
+  // TODO: Add pagination
+  public getCategoriesWithProductsAndCount() {
+    return this.categoryRepository.createQueryBuilder('cat').getManyAndCount();
+  }
+}
