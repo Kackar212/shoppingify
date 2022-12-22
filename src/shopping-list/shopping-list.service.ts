@@ -57,12 +57,6 @@ export class ShoppingListService {
       shoppingList.products.push(...this.shoppingListProductRepository.create(newProducts));
 
       await this.shoppingListRepository.save(shoppingList);
-
-      return {
-        message: ResponseMessage.ProductAdded,
-        data: shoppingList,
-        status: HttpStatus.OK,
-      };
     } catch (e) {
       switch (e.errno) {
         case DatabaseError.ERR_NO_REFERENCED_ROW: {
@@ -70,6 +64,12 @@ export class ShoppingListService {
         }
       }
     }
+
+    return {
+      message: ResponseMessage.ProductAdded,
+      data: shoppingList,
+      status: HttpStatus.OK,
+    };
   }
 
   public async getList(user: User, id?: number) {

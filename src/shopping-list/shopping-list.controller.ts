@@ -6,6 +6,8 @@ import { ShoppingListService } from './shopping-list.service';
 import { User as UserEntity } from 'src/user/user.entity';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { RemoveListProductDto } from './dto/remove-list-product.dto';
+import { ShoppingList } from './shopping-list.entity';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -13,7 +15,10 @@ export class ShoppingListController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async addProduct(@Body() { products }: AddShoppingListProductDto, @User() user: UserEntity) {
+  async addProduct(
+    @Body() { products }: AddShoppingListProductDto,
+    @User() user: UserEntity,
+  ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.addProduct(user, products);
   }
 
@@ -22,7 +27,7 @@ export class ShoppingListController {
   removeProductFromList(
     @Body() removeListProductData: RemoveListProductDto,
     @User() user: UserEntity,
-  ) {
+  ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.removeProductFromList(removeListProductData, user);
   }
 }
