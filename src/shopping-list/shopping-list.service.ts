@@ -1,10 +1,12 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
+import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
@@ -68,5 +70,52 @@ export class ShoppingListService {
         }
       }
     }
+  }
+
+  public async getList(user: User, id?: number) {
+    if (id) {
+      return this.shoppingListRepository.findOne({
+        where: { id, user },
+        relations: ['products', 'products.product'],
+      });
+    }
+
+    return await this.getActiveList(user);
+  }
+
+  public async removeProductFromList(
+    { product, shoppingList: { id: shoppingListId } }: RemoveListProductDto,
+    user: User,
+  ) {
+    const shoppingList = await this.getList(user, shoppingListId);
+
+    if (!shoppingList) {
+      throw new BadRequestException(
+        Exceptions.NOT_FOUND_ENTITY(`shoppingListId=${shoppingListId}`),
+      );
+    }
+
+    const { affected } = await this.shoppingListProductRepository.delete({
+      id: product.id,
+      shoppingList,
+    });
+
+    if (!affected) {
+      throw new BadRequestException(
+        Exceptions.NOT_FOUND_ENTITY(
+          `productId=${product.id} AND shoppingListId=${shoppingList.id}`,
+        ),
+      );
+    }
+
+    shoppingList.products = shoppingList.products.filter((listProduct) => {
+      return listProduct.id !== product.id;
+    });
+
+    return {
+      message: ResponseMessage.ProductRemovedFromList,
+      data: shoppingList,
+      status: HttpStatus.OK,
+    };
   }
 }
