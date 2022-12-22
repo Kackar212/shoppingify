@@ -17,4 +17,9 @@ export class ProductsController {
   get(@Param('id') id: number): Promise<ResponseDto<Product>> {
     return this.productsService.get(id);
   }
+
+  @Get()
+  getAll() {
+    return this.productsService.getAllGroupedByCategory();
+  }
 }
