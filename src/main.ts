@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,6 +13,13 @@ async function bootstrap() {
       key: fs.readFileSync('key.pem'),
       cert: fs.readFileSync('cert.pem'),
     },
+  });
+
+  const configService = app.get(ConfigService);
+  const { origin } = configService.get('cors');
+
+  app.enableCors({
+    origin,
   });
 
   app.use(cookieParser());
