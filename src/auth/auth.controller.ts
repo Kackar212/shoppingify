@@ -22,6 +22,7 @@ import { ActivationJwtAuthGuard } from './guards/activation-token.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RedirectDto } from '../common/dto/redirect.dto';
 import { NewPasswordDto } from './dto/new-password.dto';
+import { AccountActivationQueryDto } from './dto/account-activation-query.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -60,7 +61,7 @@ export class AuthController {
   @Get('activate-account/:token')
   public async activateAccount(
     @User() user: UserEntity,
-    @Query('redirect') redirect: string,
+    @Query() { redirect }: AccountActivationQueryDto,
     @Res() response: Response,
   ) {
     await this.authService.activateUser(user);
