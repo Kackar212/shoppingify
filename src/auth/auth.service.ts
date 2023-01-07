@@ -143,7 +143,7 @@ export class AuthService {
       const hashRounds = 10;
 
       user.password = await bcrypt.hash(user.password, hashRounds);
-      user.activationToken = await bcrypt.hash(activationToken, hashRounds);
+      user.activationToken = activationToken;
 
       const savedUser = await this.userService.save(user);
 
