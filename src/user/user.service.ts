@@ -76,7 +76,7 @@ export class UserService {
       return null;
     }
 
-    const isActivationTokenEqual = await bcrypt.compare(activationToken, user.activationToken);
+    const isActivationTokenEqual = activationToken === user.activationToken;
 
     if (!isActivationTokenEqual) {
       return null;
