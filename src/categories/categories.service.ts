@@ -10,8 +10,7 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  // TODO: Add pagination
-  public getCategoriesWithProductsAndCount() {
-    return this.categoryRepository.createQueryBuilder('cat').getManyAndCount();
+  public getCategoriesWithProductsAndCount(take: number, page: number) {
+    return this.categoryRepository.findAndCount({ take, skip: (page - 1) * take });
   }
 }

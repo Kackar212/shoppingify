@@ -7,6 +7,7 @@ export const ResponseMessage = {
   ProductFound: 'Product found!',
   ProductAdded: 'Product added to list successfully!',
   ProductRemovedFromList: 'Product removed from list successfully!',
+  AllProducts: 'All products',
 } as const;
 
 export const DatabaseError = {

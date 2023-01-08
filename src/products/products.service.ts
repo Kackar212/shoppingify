@@ -6,6 +6,7 @@ import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './product.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class ProductsService {
@@ -53,13 +54,19 @@ export class ProductsService {
     };
   }
 
-  // TODO: Add pagination
-  async getAllGroupedByCategory() {
-    let [categories] = await this.categoriesService.getCategoriesWithProductsAndCount();
+  async getAllGroupedByCategory({ take = 50, page = 1 }: PaginationQueryDto) {
+    let [categories, total] = await this.categoriesService.getCategoriesWithProductsAndCount(
+      take,
+      page,
+    );
 
     const transformedCategories = await Promise.all(
       categories.map(async (category) => {
-        const [products] = await this.productRepository.findAndCount({ where: { category } });
+        const products = await this.productRepository.find({
+          where: { category },
+          skip: (page - 1) * Math.floor(take / 2),
+          take: Math.floor(take / 2),
+        });
 
         return {
           ...category,
@@ -69,9 +76,14 @@ export class ProductsService {
     );
 
     return {
-      message: `All products`,
+      message: ResponseMessage.AllProducts,
       data: transformedCategories,
       status: HttpStatus.OK,
+      pagination: {
+        total,
+        page,
+        take,
+      },
     };
   }
 }

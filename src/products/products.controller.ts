@@ -3,6 +3,11 @@ import { ResponseDto } from 'src/common/dto/response.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { ProductsService } from './products.service';
+import { PaginationInterceptor } from 'src/common/interceptors/pagination.interceptor';
+import { Query, UseInterceptors } from '@nestjs/common/decorators';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { ResponseWithPaginationDto } from 'src/common/dto/response-with-pagination.dto';
+import { Category } from 'src/categories/category.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -19,7 +24,10 @@ export class ProductsController {
   }
 
   @Get()
-  getAll() {
-    return this.productsService.getAllGroupedByCategory();
+  @UseInterceptors(PaginationInterceptor)
+  getAll(
+    @Query() paginationQuery: PaginationQueryDto,
+  ): Promise<ResponseWithPaginationDto<Category[]>> {
+    return this.productsService.getAllGroupedByCategory(paginationQuery);
   }
 }
