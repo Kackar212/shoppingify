@@ -30,4 +30,9 @@ export class ProductsController {
   ): Promise<ResponseWithPaginationDto<Category[]>> {
     return this.productsService.getAllGroupedByCategory(paginationQuery);
   }
+
+  @Get('/search/:name')
+  search(@Param('name') name: string): Promise<ResponseDto<Product[]>> {
+    return this.productsService.search(name);
+  }
 }

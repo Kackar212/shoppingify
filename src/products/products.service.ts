@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
-import { Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
@@ -84,6 +84,19 @@ export class ProductsService {
         page,
         take,
       },
+    };
+  }
+
+  async search(name: string) {
+    return {
+      message: ResponseMessage.SearchedProducts,
+      data: await this.productRepository.find({
+        where: { name: ILike(`%${name}%`) },
+        select: ['name', 'id'],
+        take: 50,
+        skip: 0,
+      }),
+      status: HttpStatus.OK,
     };
   }
 }
