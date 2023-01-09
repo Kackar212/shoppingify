@@ -148,4 +148,21 @@ export class ShoppingListService {
       status: HttpStatus.OK,
     };
   }
+
+  async saveList(user: User, name: string) {
+    const shoppingList = await this.getActiveList(user, true);
+    const newData = {
+      status: STATUS.SAVED,
+      name,
+      updatedAt: new Date(),
+    };
+
+    await this.shoppingListRepository.update({ user, status: STATUS.ACTIVE }, newData);
+
+    return {
+      message: ResponseMessage.ListSaved,
+      data: { ...shoppingList, ...newData },
+      status: HttpStatus.OK,
+    };
+  }
 }
