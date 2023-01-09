@@ -10,6 +10,7 @@ import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
+import { ChangeStatusDto } from './dto/change-status.dto';
 
 @Injectable()
 export class ShoppingListService {
@@ -116,6 +117,30 @@ export class ShoppingListService {
     return {
       message: ResponseMessage.ProductRemovedFromList,
       data: shoppingList,
+      status: HttpStatus.OK,
+    };
+  }
+
+  async changeStatus(user: User, { id, status }: ChangeStatusDto) {
+    const { affected } = await this.shoppingListRepository.update(
+      { id, user },
+      {
+        status,
+        updatedAt: new Date(),
+      },
+    );
+
+    if (!affected) {
+      throw new NotFoundEntity(
+        Exceptions.NOT_FOUND_ENTITY(`userId=${user.id} AND shoppingListId=${id}`),
+      );
+    }
+
+    const data = await this.getList(user, id);
+
+    return {
+      message: ResponseMessage.StatusChanged,
+      data: data!,
       status: HttpStatus.OK,
     };
   }

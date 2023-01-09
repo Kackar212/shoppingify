@@ -9,6 +9,7 @@ export const ResponseMessage = {
   ProductRemovedFromList: 'Product removed from list successfully!',
   AllProducts: 'All products',
   SearchedProducts: 'All Products with given name',
+  StatusChanged: 'Shopping list status changed successfully!',
 } as const;
 
 export const DatabaseError = {
