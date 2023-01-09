@@ -1,5 +1,12 @@
 import { User } from 'src/user/user.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ShoppingListProduct } from './shopping-list-product.entity';
 
 @Entity()
@@ -20,4 +27,10 @@ export class ShoppingList {
 
   @ManyToOne(() => User, (user) => user.shoppingLists)
   user: User;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp' })
+  updatedAt: Date;
 }
