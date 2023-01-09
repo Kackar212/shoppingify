@@ -1,5 +1,5 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
-import { BadRequestException } from '@nestjs/common/exceptions';
+import { BadRequestException, ConflictException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants';
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
@@ -22,7 +22,7 @@ export class ShoppingListService {
     private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
   ) {}
 
-  public async getActiveList(user: User) {
+  public async getActiveList(user: User, throwIfNotFound = false) {
     const activeList = await this.shoppingListRepository.findOne({
       where: { status: STATUS.ACTIVE, user },
       relations: ['products', 'products.product'],
@@ -30,6 +30,10 @@ export class ShoppingListService {
 
     if (activeList) {
       return activeList;
+    }
+
+    if (throwIfNotFound) {
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`userId=${user.id} AND status=active`));
     }
 
     return await this.shoppingListRepository.save({
