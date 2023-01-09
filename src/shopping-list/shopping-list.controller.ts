@@ -9,6 +9,7 @@ import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingList } from './shopping-list.entity';
 import { ResponseDto } from 'src/common/dto/response.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { SaveListDto } from 'src/shopping-list/dto/save-list.dto';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -39,5 +40,14 @@ export class ShoppingListController {
     @Body() changeStatusBody: ChangeStatusDto,
   ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.changeStatus(user, changeStatusBody);
+  }
+
+  @Patch('save')
+  @UseGuards(JwtAuthGuard)
+  save(
+    @User() user: UserEntity,
+    @Body() { name }: SaveListDto,
+  ): Promise<ResponseDto<ShoppingList>> {
+    return this.shoppingListService.saveList(user, name);
   }
 }
