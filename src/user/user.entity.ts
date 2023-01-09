@@ -34,7 +34,7 @@ export class User {
   @Exclude()
   isPasswordReseted: boolean;
 
-  @OneToMany(() => ShoppingList, (shoppingList) => shoppingList.user, { eager: true })
+  @OneToMany(() => ShoppingList, (shoppingList) => shoppingList.user)
   shoppingLists: ShoppingList[];
 
   constructor(partial: Partial<User>) {
