@@ -55,6 +55,7 @@ export class ShoppingListService {
 
     try {
       shoppingList.products.push(...this.shoppingListProductRepository.create(newProducts));
+      shoppingList.updatedAt = new Date();
 
       await this.shoppingListRepository.save(shoppingList);
     } catch (e) {
