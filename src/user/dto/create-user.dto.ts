@@ -15,6 +15,6 @@ export class CreateUserDto {
   @Length(8, 30)
   password: string;
 
-  @IsUrl()
+  @IsUrl({ require_protocol: true, host_whitelist: ['localhost'] })
   redirect: string;
 }

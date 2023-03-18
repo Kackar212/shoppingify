@@ -16,7 +16,7 @@ export class CreateProductDto {
   @IsOptional()
   note?: string;
 
-  @IsUrl()
+  @IsUrl({ host_whitelist: ['localhost'] })
   @IsOptional()
   image?: string;
 }
