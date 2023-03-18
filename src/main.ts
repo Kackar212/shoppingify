@@ -20,6 +20,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin,
+    credentials: true,
   });
 
   app.use(cookieParser());
@@ -31,7 +32,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get('Reflector')));
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(3000);
+  await app.listen(configService.get<number>('PORT') || 3000);
 }
 
 bootstrap();
