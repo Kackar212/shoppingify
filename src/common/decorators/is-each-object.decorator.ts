@@ -12,11 +12,11 @@ export function IsEachObject(validationOptions?: ValidationOptions) {
         validate(value: any): boolean {
           if (!Array.isArray(value)) return false;
 
-          const isEachPlainObject = !value.some(
-            (element) => Object.getPrototypeOf(element) !== Object.prototype,
+          const isEachObject = !value.some(
+            (element) => typeof element !== 'object' || element === null || Array.isArray(element),
           );
 
-          if (!isEachPlainObject) {
+          if (!isEachObject) {
             return false;
           }
 
