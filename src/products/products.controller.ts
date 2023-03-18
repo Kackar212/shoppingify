@@ -32,7 +32,11 @@ export class ProductsController {
   }
 
   @Get('/search/:name')
-  search(@Param('name') name: string): Promise<ResponseDto<Product[]>> {
-    return this.productsService.search(name);
+  @UseInterceptors(PaginationInterceptor)
+  search(
+    @Param('name') name: string,
+    @Query() paginationQuery: PaginationQueryDto,
+  ): Promise<ResponseDto<Product[]>> {
+    return this.productsService.search(name, paginationQuery);
   }
 }

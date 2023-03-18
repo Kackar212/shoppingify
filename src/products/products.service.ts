@@ -87,16 +87,23 @@ export class ProductsService {
     };
   }
 
-  async search(name: string) {
+  async search(name: string, { take = 50, page = 1 }: PaginationQueryDto) {
+    const [products, total] = await this.productRepository.findAndCount({
+      where: { name: ILike(`%${name}%`) },
+      select: ['name', 'id'],
+      take,
+      skip: (page - 1) * take,
+    });
+
     return {
       message: ResponseMessage.SearchedProducts,
-      data: await this.productRepository.find({
-        where: { name: ILike(`%${name}%`) },
-        select: ['name', 'id'],
-        take: 50,
-        skip: 0,
-      }),
+      data: products,
       status: HttpStatus.OK,
+      pagination: {
+        total,
+        page,
+        take,
+      },
     };
   }
 }
