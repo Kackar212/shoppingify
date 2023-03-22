@@ -10,6 +10,7 @@ import { ShoppingList } from './shopping-list.entity';
 import { ResponseDto } from 'src/common/dto/response.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { SaveListDto } from 'src/shopping-list/dto/save-list.dto';
+import { ResponseMessage } from 'src/common/constants';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -22,6 +23,18 @@ export class ShoppingListController {
     @User() user: UserEntity,
   ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.addProduct(user, products);
+  }
+
+  @Get('/active')
+  @UseGuards(JwtAuthGuard)
+  async getActiveList(@User() user: UserEntity): Promise<ResponseDto<ShoppingList>> {
+    const activeList = await this.shoppingListService.getActiveList(user);
+
+    return {
+      message: ResponseMessage.ActiveList,
+      data: activeList,
+      status: 200,
+    };
   }
 
   @Delete()

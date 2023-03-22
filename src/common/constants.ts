@@ -11,6 +11,7 @@ export const ResponseMessage = {
   SearchedProducts: 'All Products with given name',
   StatusChanged: 'Shopping list status changed successfully!',
   ListSaved: 'Shopping list saved successfully!',
+  ActiveList: 'Active list!',
 } as const;
 
 export const DatabaseError = {
