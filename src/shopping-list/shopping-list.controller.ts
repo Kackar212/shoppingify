@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, UseGuards, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Patch, Post, UseGuards, Delete, Get } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { AddShoppingListProductDto } from './dto/add-shopping-list-product.dto';
