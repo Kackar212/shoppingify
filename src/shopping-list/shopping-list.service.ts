@@ -11,6 +11,7 @@ import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
 
 @Injectable()
 export class ShoppingListService {
@@ -21,6 +22,40 @@ export class ShoppingListService {
     @InjectRepository(ShoppingListProduct)
     private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
   ) {}
+
+  public async updateProductQuantity(
+    { id, quantity }: UpdateShoppingListProductQuantityDto,
+    user: User,
+  ) {
+    const activeList = await this.getActiveList(user);
+    const { affected } = await this.shoppingListProductRepository.update(
+      { id, shoppingList: activeList },
+      { quantity },
+    );
+
+    if (!affected) {
+      throw new NotFoundEntity(
+        Exceptions.NOT_FOUND_ENTITY(
+          `shoppingListProductId=${id} AND shoppingListId=${activeList.id}`,
+        ),
+      );
+    }
+
+    activeList.updatedAt = new Date();
+    activeList.products = activeList.products.map((product) => {
+      if (product.id === id) {
+        return { ...product, quantity };
+      }
+
+      return product;
+    });
+
+    return {
+      message: ResponseMessage.ProductQuantityUpdated,
+      data: activeList,
+      status: 200,
+    };
+  }
 
   public async getActiveList(user: User, throwIfNotFound = false) {
     const activeList = await this.shoppingListRepository.findOne({

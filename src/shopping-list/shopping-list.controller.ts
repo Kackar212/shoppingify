@@ -4,13 +4,13 @@ import { User } from 'src/common/decorators/user.decorator';
 import { AddShoppingListProductDto } from './dto/add-shopping-list-product.dto';
 import { ShoppingListService } from './shopping-list.service';
 import { User as UserEntity } from 'src/user/user.entity';
-import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingList } from './shopping-list.entity';
 import { ResponseDto } from 'src/common/dto/response.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { SaveListDto } from 'src/shopping-list/dto/save-list.dto';
 import { ResponseMessage } from 'src/common/constants';
+import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -44,6 +44,15 @@ export class ShoppingListController {
     @User() user: UserEntity,
   ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.removeProductFromList(removeListProductData, user);
+  }
+
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  updateShoppingListProductQuantity(
+    @Body() newData: UpdateShoppingListProductQuantityDto,
+    @User() user: UserEntity,
+  ): Promise<ResponseDto<ShoppingList>> {
+    return this.shoppingListService.updateProductQuantity(newData, user);
   }
 
   @Patch('status')
