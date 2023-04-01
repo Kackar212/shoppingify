@@ -10,8 +10,8 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     httpsOptions: {
-      key: fs.readFileSync('key.pem'),
-      cert: fs.readFileSync('cert.pem'),
+      key: fs.readFileSync('key.pvk'),
+      cert: fs.readFileSync('cert.cer'),
     },
   });
 
@@ -33,6 +33,8 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(configService.get<number>('PORT') || 3000);
+
+  app.getHttpServer();
 }
 
 bootstrap();
