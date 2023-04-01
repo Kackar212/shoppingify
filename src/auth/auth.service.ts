@@ -78,10 +78,13 @@ export class AuthService {
   }
 
   private createTokenCookie(name: string, value: string, maxAge: number) {
+    const IS_DEV_MODE = process.env.NODE_ENV === 'development';
+
     const tokenCookieOptions = {
       'max-age': maxAge,
       httpOnly: true,
-      secure: true,
+      secure: !IS_DEV_MODE,
+      sameSite: IS_DEV_MODE ? 'None' : 'Lax',
       path: '/',
     };
 
