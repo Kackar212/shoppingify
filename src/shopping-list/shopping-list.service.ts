@@ -108,7 +108,7 @@ export class ShoppingListService {
 
     return {
       message: ResponseMessage.ProductAdded,
-      data: shoppingList,
+      data: await this.getActiveList(user),
       status: HttpStatus.OK,
     };
   }
