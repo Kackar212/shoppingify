@@ -14,7 +14,10 @@ export class CategoriesService {
   public async searchCategories(name: string) {
     return {
       message: ResponseMessage.SearchedCategories,
-      data: await this.categoryRepository.find({ where: { name: ILike(`%${name}%`) }, take: 50 }),
+      data: await this.categoryRepository.find({
+        where: { name: name ? ILike(`%${name}%`) : undefined },
+        take: 50,
+      }),
       status: 200,
     };
   }
