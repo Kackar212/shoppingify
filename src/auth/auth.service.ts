@@ -248,7 +248,7 @@ export class AuthService {
 
     const { randomBytes } = await import('node:crypto');
 
-    const newPassword = randomBytes(24).toString('base64');
+    const newPassword = randomBytes(24).toString('base64').substring(0, 30);
 
     const hashRounds = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, hashRounds);
