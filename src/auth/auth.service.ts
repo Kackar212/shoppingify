@@ -53,17 +53,17 @@ export class AuthService {
     }
   }
 
-  public createAccessToken(user: User) {
-    const payload = { name: user.name };
+  public createAccessToken({ name, id }: User) {
+    const payload = { name, id };
 
     return this.jwtService.signAsync(payload);
   }
 
-  public createRefreshToken({ name }: User) {
+  public createRefreshToken({ name, id }: User) {
     const { expirationTime, secret } = this.configService.get('refreshToken');
 
     return this.jwtService.signAsync(
-      { name },
+      { name, id },
       {
         secret,
         expiresIn: expirationTime,
