@@ -24,7 +24,7 @@ export class PaginationInterceptor implements NestInterceptor {
         const page: Record<string, number> = {};
         page.last = Math.ceil(total / take);
         page.first = 1;
-        page.current = currentPage > page.last || currentPage < page.last ? page.last : currentPage;
+        page.current = currentPage;
         page.next = currentPage + 1 > page.last ? currentPage : currentPage + 1;
         page.previous = currentPage - 1 < page.first ? page.first : currentPage - 1;
 
