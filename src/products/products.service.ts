@@ -89,7 +89,7 @@ export class ProductsService {
 
   async search(name: string, { take = 50, page = 1 }: PaginationQueryDto) {
     const [products, total] = await this.productRepository.findAndCount({
-      where: { name: ILike(`%${name}%`) },
+      where: { name: name ? ILike(`%${name}%`) : undefined },
       select: ['name', 'id'],
       take,
       skip: (page - 1) * take,

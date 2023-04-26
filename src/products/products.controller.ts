@@ -31,7 +31,7 @@ export class ProductsController {
     return this.productsService.getAllGroupedByCategory(paginationQuery);
   }
 
-  @Get('/search/:name')
+  @Get('/search/:name?')
   @UseInterceptors(PaginationInterceptor)
   search(
     @Param('name') name: string,
