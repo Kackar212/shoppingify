@@ -187,7 +187,6 @@ export class ShoppingListService {
   async saveList(user: User, name: string) {
     const shoppingList = await this.getActiveList(user, true);
     const newData = {
-      status: STATUS.SAVED,
       name,
       updatedAt: new Date(),
     };
