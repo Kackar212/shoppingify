@@ -267,4 +267,19 @@ export class AuthService {
       status: HttpStatus.OK,
     };
   }
+
+  public async logout(user: User, request: Request) {
+    const response = request.res as Response;
+    const accessToken = this.createTokenCookie(this.AccessTokenName, 'deleted', 1);
+    const refreshToken = this.createTokenCookie(this.RefreshTokenName, 'deleted', 1);
+
+    response.setHeader('Set-Cookie', [accessToken, refreshToken]);
+    await this.userService.setRefreshToken(user.name, '');
+
+    return {
+      message: ResponseMessage.UserLoggedOut,
+      data: {},
+      status: HttpStatus.OK,
+    };
+  }
 }

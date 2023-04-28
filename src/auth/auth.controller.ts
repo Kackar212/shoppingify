@@ -84,4 +84,11 @@ export class AuthController {
   public resetPassword(@Body() { email }: NewPasswordDto): Promise<ResponseDto<{}>> {
     return this.authService.sendNewPassword(email);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  public logout(@User() user: UserEntity, @Req() request: Request) {
+    return this.authService.logout(user, request);
+  }
 }
