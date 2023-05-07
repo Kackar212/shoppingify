@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { ResponseMessage } from 'src/common/constants';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -22,7 +23,11 @@ export class CategoriesService {
     };
   }
 
-  public getCategoriesWithProductsAndCount(take: number, page: number) {
-    return this.categoryRepository.findAndCount({ take, skip: (page - 1) * take });
+  public getCategoriesWithProductsAndCount(take: number, page: number, user: User) {
+    return this.categoryRepository.findAndCount({
+      where: { products: { user } },
+      take,
+      skip: (page - 1) * take,
+    });
   }
 }

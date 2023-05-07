@@ -26,24 +26,29 @@ export class ProductsController {
   }
 
   @Get(':id(\\d+)')
-  get(@Param('id') id: number): Promise<ResponseDto<Product>> {
-    return this.productsService.get(id);
+  @UseGuards(JwtAuthGuard)
+  get(@Param('id') id: number, @User() user: UserEntity): Promise<ResponseDto<Product>> {
+    return this.productsService.get(id, user);
   }
 
   @Get()
   @UseInterceptors(PaginationInterceptor)
+  @UseGuards(JwtAuthGuard)
   getAll(
     @Query() paginationQuery: PaginationQueryDto,
+    @User() user: UserEntity,
   ): Promise<ResponseWithPaginationDto<Category[]>> {
-    return this.productsService.getAllGroupedByCategory(paginationQuery);
+    return this.productsService.getAllGroupedByCategory(paginationQuery, user);
   }
 
   @Get('/search/:name?')
   @UseInterceptors(PaginationInterceptor)
+  @UseGuards(JwtAuthGuard)
   search(
     @Param('name') name: string,
     @Query() paginationQuery: PaginationQueryDto,
+    @User() user: UserEntity,
   ): Promise<ResponseDto<Product[]>> {
-    return this.productsService.search(name, paginationQuery);
+    return this.productsService.search(name, paginationQuery, user);
   }
 }

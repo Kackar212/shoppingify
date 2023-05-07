@@ -41,8 +41,8 @@ export class ProductsService {
     };
   }
 
-  async get(id: number) {
-    const product = await this.productRepository.findOneBy({ id });
+  async get(id: number, user: User) {
+    const product = await this.productRepository.findOneBy({ id, user });
 
     if (!product) {
       throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`id=${id}`));
@@ -55,16 +55,17 @@ export class ProductsService {
     };
   }
 
-  async getAllGroupedByCategory({ take = 50, page = 1 }: PaginationQueryDto) {
+  async getAllGroupedByCategory({ take = 50, page = 1 }: PaginationQueryDto, user: User) {
     let [categories, total] = await this.categoriesService.getCategoriesWithProductsAndCount(
       take,
       page,
+      user,
     );
 
     const transformedCategories = await Promise.all(
       categories.map(async (category) => {
         const products = await this.productRepository.find({
-          where: { category },
+          where: { category, user },
           skip: (page - 1) * Math.floor(take / 2),
           take: Math.floor(take / 2),
         });
@@ -88,9 +89,9 @@ export class ProductsService {
     };
   }
 
-  async search(name: string, { take = 50, page = 1 }: PaginationQueryDto) {
+  async search(name: string, { take = 50, page = 1 }: PaginationQueryDto, user: User) {
     const [products, total] = await this.productRepository.findAndCount({
-      where: { name: name ? ILike(`%${name}%`) : undefined },
+      where: { name: name ? ILike(`%${name}%`) : undefined, user },
       select: ['name', 'id'],
       take,
       skip: (page - 1) * take,
