@@ -7,6 +7,7 @@ import { ILike, Like, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -16,8 +17,8 @@ export class ProductsService {
     private readonly categoriesService: CategoriesService,
   ) {}
 
-  async create(productData: CreateProductDto) {
-    const product = this.productRepository.create(productData);
+  async create(user: User, productData: CreateProductDto) {
+    const product = this.productRepository.create({ user, ...productData });
 
     try {
       await this.productRepository.save(product);

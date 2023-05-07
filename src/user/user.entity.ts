@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
+import { Product } from 'src/products/product.entity';
 
 @Entity()
 export class User {
@@ -36,6 +37,9 @@ export class User {
 
   @OneToMany(() => ShoppingList, (shoppingList) => shoppingList.user)
   shoppingLists: ShoppingList[];
+
+  @OneToMany(() => Product, (product) => product.user)
+  products: Product[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
