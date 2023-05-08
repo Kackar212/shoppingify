@@ -8,6 +8,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { User } from 'src/user/user.entity';
+import { BadRequestException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class ProductsService {
@@ -106,6 +107,26 @@ export class ProductsService {
         page,
         take,
       },
+    };
+  }
+
+  public async removeProduct(id: number, user: User) {
+    const product = this.productRepository.findOne({ where: { id, user } });
+    const { affected } = await this.productRepository.delete({
+      id,
+      user,
+    });
+
+    if (!affected) {
+      throw new BadRequestException(
+        Exceptions.NOT_FOUND_ENTITY(`productId=${id} AND userId=${user.id}`),
+      );
+    }
+
+    return {
+      message: ResponseMessage.ProductRemovedFromList,
+      data: await product,
+      status: HttpStatus.OK,
     };
   }
 }

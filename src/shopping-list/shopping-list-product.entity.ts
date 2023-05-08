@@ -14,6 +14,8 @@ export class ShoppingListProduct {
   @ManyToOne(() => ShoppingList, (shoppingList) => shoppingList.products)
   shoppingList: ShoppingList;
 
-  @ManyToOne(() => Product, (product) => product.listItems)
+  @ManyToOne(() => Product, (product) => product.listItems, {
+    onDelete: 'CASCADE',
+  })
   product: Product;
 }
