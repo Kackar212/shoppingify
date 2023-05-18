@@ -129,4 +129,24 @@ export class ProductsService {
       status: HttpStatus.OK,
     };
   }
+
+  public async getByCategory(id: number, { take = 50, page = 1 }: PaginationQueryDto, user: User) {
+    const [products, total] = await this.productRepository.findAndCount({
+      where: { category: { id }, user },
+      take,
+      skip: (page - 1) * take,
+      select: ['name', 'id'],
+    });
+
+    return {
+      message: ResponseMessage.SearchedProducts,
+      data: products,
+      status: HttpStatus.OK,
+      pagination: {
+        total,
+        page,
+        take,
+      },
+    };
+  }
 }

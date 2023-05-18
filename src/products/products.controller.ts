@@ -58,4 +58,15 @@ export class ProductsController {
   ): Promise<ResponseDto<Product[]>> {
     return this.productsService.search(name, paginationQuery, user);
   }
+
+  @Get('/category/:id')
+  @UseInterceptors(PaginationInterceptor)
+  @UseGuards(JwtAuthGuard)
+  public getProductsByCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+    @User() user: UserEntity,
+  ) {
+    return this.productsService.getByCategory(id, paginationQuery, user);
+  }
 }
