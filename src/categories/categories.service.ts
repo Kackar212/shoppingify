@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { FindOneOptions, ILike, Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { ResponseMessage } from 'src/common/constants';
 import { User } from 'src/user/user.entity';
@@ -29,5 +29,9 @@ export class CategoriesService {
       take,
       skip: (page - 1) * take,
     });
+  }
+
+  public findOne(findOptions: FindOneOptions<Category>) {
+    return this.categoryRepository.findOne(findOptions);
   }
 }
