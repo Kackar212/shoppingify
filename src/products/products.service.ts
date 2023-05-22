@@ -131,8 +131,14 @@ export class ProductsService {
   }
 
   public async getByCategory(id: number, { take = 50, page = 1 }: PaginationQueryDto, user: User) {
+    const category = await this.categoriesService.findOne({ where: { id } });
+
+    if (!category) {
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`categoryId=${id}`));
+    }
+
     const [products, total] = await this.productRepository.findAndCount({
-      where: { category: { id }, user },
+      where: { category, user },
       take,
       skip: (page - 1) * take,
       select: ['name', 'id'],
@@ -140,7 +146,7 @@ export class ProductsService {
 
     return {
       message: ResponseMessage.SearchedProducts,
-      data: products,
+      data: { category, products },
       status: HttpStatus.OK,
       pagination: {
         total,
