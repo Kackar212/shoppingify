@@ -20,3 +20,10 @@ export function getErrorCode(status: number) {
     }
   }
 }
+
+export function getPaginationFindOptions(take: number, page: number) {
+  return {
+    take,
+    skip: (page - 1) * take,
+  };
+}
