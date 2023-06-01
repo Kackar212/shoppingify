@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsUrl, Length, ValidateNested } from 'class-validator';
+import { IsOptional, IsString, IsUrl, Length, ValidateNested, ValidateIf } from 'class-validator';
 import { CategoryDto } from 'src/categories/dto/category.dto';
 
 export class CreateProductDto {
@@ -16,6 +16,7 @@ export class CreateProductDto {
   @IsOptional()
   note?: string;
 
+  @ValidateIf((o) => o.image !== '')
   @IsUrl()
   @IsOptional()
   image?: string;
