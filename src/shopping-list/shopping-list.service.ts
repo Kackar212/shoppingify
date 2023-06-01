@@ -202,6 +202,28 @@ export class ShoppingListService {
     };
   }
 
+  public groupListsByMonthAndYear(lists: ShoppingList[]) {
+    const listsGroupedByDate = lists.reduce((result, list) => {
+      const month = list.createdAt.toLocaleDateString('en-US', { month: 'long' });
+      const year = list.createdAt.getFullYear();
+      const key = `${month},${year}`;
+
+      if (!result[key]) {
+        result[key] = [];
+      }
+
+      result[key].push(list);
+
+      return result;
+    }, {} as Record<string, Array<ShoppingList>>);
+
+    return Object.entries(listsGroupedByDate).map(([date, lists]) => {
+      const [month, year] = date.split(',');
+
+      return [[month, +year], lists];
+    });
+  }
+
   public async getAll(user: User, { take = 50, page = 1 }: PaginationQueryDto) {
     const [lists, total] = await this.shoppingListRepository.findAndCount({
       where: { user, status: Not(STATUS.ACTIVE) },
@@ -210,7 +232,7 @@ export class ShoppingListService {
 
     return {
       message: ResponseMessage.AllLists,
-      data: lists,
+      data: this.groupListsByMonthAndYear(lists),
       status: HttpStatus.OK,
       pagination: {
         total,
