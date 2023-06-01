@@ -5,7 +5,7 @@ import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
@@ -204,7 +204,7 @@ export class ShoppingListService {
 
   public async getAll(user: User, { take = 50, page = 1 }: PaginationQueryDto) {
     const [lists, total] = await this.shoppingListRepository.findAndCount({
-      where: { user },
+      where: { user, status: Not(STATUS.ACTIVE) },
       ...getPaginationFindOptions(take, page),
     });
 
