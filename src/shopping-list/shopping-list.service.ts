@@ -12,6 +12,8 @@ import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShoppingList } from './shopping-list.entity';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { getPaginationFindOptions } from 'src/common/utilities';
 
 @Injectable()
 export class ShoppingListService {
@@ -197,6 +199,24 @@ export class ShoppingListService {
       message: ResponseMessage.ListSaved,
       data: { ...shoppingList, ...newData },
       status: HttpStatus.OK,
+    };
+  }
+
+  public async getAll(user: User, { take = 50, page = 1 }: PaginationQueryDto) {
+    const [lists, total] = await this.shoppingListRepository.findAndCount({
+      where: { user },
+      ...getPaginationFindOptions(take, page),
+    });
+
+    return {
+      message: ResponseMessage.AllLists,
+      data: lists,
+      status: HttpStatus.OK,
+      pagination: {
+        total,
+        take,
+        page,
+      },
     };
   }
 }

@@ -1,4 +1,14 @@
-import { Body, Controller, Patch, Post, UseGuards, Delete, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Patch,
+  Post,
+  UseGuards,
+  Delete,
+  Get,
+  UseInterceptors,
+  Query,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { AddShoppingListProductDto } from './dto/add-shopping-list-product.dto';
@@ -11,6 +21,8 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import { SaveListDto } from 'src/shopping-list/dto/save-list.dto';
 import { ResponseMessage } from 'src/common/constants';
 import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
+import { PaginationInterceptor } from 'src/common/interceptors/pagination.interceptor';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -71,5 +83,12 @@ export class ShoppingListController {
     @Body() { name }: SaveListDto,
   ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.saveList(user, name);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(PaginationInterceptor)
+  getAll(@User() user: UserEntity, @Query() paginationQuery: PaginationQueryDto) {
+    return this.shoppingListService.getAll(user, paginationQuery);
   }
 }
