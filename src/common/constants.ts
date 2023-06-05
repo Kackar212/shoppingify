@@ -16,6 +16,7 @@ export const ResponseMessage = {
   ProductQuantityUpdated: 'Product quantity updated',
   SearchedCategories: 'All Categories with given name',
   AllLists: 'All lists',
+  ListFound: 'List found!',
 } as const;
 
 export const DatabaseError = {

@@ -23,6 +23,9 @@ import { ResponseMessage } from 'src/common/constants';
 import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
 import { PaginationInterceptor } from 'src/common/interceptors/pagination.interceptor';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { Param } from '@nestjs/common/decorators';
+import { ParseIntPipe } from '@nestjs/common/pipes';
+import { ShoppingListProduct } from './shopping-list-product.entity';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -90,5 +93,16 @@ export class ShoppingListController {
   @UseInterceptors(PaginationInterceptor)
   getAll(@User() user: UserEntity, @Query() paginationQuery: PaginationQueryDto) {
     return this.shoppingListService.getAll(user, paginationQuery);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(PaginationInterceptor)
+  get(
+    @User() user: UserEntity,
+    @Query() paginationQuery: PaginationQueryDto,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResponseDto<ShoppingList>> {
+    return this.shoppingListService.get(id, paginationQuery, user);
   }
 }

@@ -241,4 +241,33 @@ export class ShoppingListService {
       },
     };
   }
+
+  public async get(id: number, { take = 50, page = 1 }: PaginationQueryDto, user: User) {
+    const shoppingList = await this.shoppingListRepository.findOne({ where: { id, user } });
+
+    if (!shoppingList) {
+      throw new NotFoundEntity(
+        Exceptions.NOT_FOUND_ENTITY(`userId=${user.id} AND shoppingListId=${id}`),
+      );
+    }
+
+    const [products, total] = await this.shoppingListProductRepository.findAndCount({
+      where: { shoppingList: { id: shoppingList.id } },
+      relations: ['product'],
+      ...getPaginationFindOptions(take, page),
+    });
+
+    shoppingList.products = products;
+
+    return {
+      message: ResponseMessage.ListFound,
+      data: shoppingList,
+      pagination: {
+        total,
+        page,
+        take,
+      },
+      status: HttpStatus.OK,
+    };
+  }
 }
