@@ -14,6 +14,8 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { getPaginationFindOptions } from 'src/common/utilities';
+import { ShoppingListUser } from './shopping-list-user.entity';
+import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
 
 @Injectable()
 export class ShoppingListService {
@@ -23,6 +25,9 @@ export class ShoppingListService {
 
     @InjectRepository(ShoppingListProduct)
     private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
+
+    @InjectRepository(ShoppingListUser)
+    private readonly shoppingListUserRepostory: Repository<ShoppingListUser>,
   ) {}
 
   public async updateProductQuantity(
@@ -62,7 +67,7 @@ export class ShoppingListService {
   public async getActiveList(user: User, throwIfNotFound = false) {
     const activeList = await this.shoppingListRepository.findOne({
       where: { status: STATUS.ACTIVE, user },
-      relations: ['products', 'products.product'],
+      relations: ['products', 'products.product', 'authorizedUsers.user'],
     });
 
     if (activeList) {
@@ -73,10 +78,14 @@ export class ShoppingListService {
       throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`userId=${user.id} AND status=active`));
     }
 
+    const authorizedUsers = await this.shoppingListUserRepostory.save([
+      { user, role: SHARED_LIST_USER_ROLE.OWNER },
+    ]);
     return await this.shoppingListRepository.save({
       status: STATUS.ACTIVE,
       products: [],
       user,
+      authorizedUsers,
     });
   }
 
