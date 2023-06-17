@@ -3,11 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ShoppingListProduct } from './shopping-list-product.entity';
+import { ShoppingListUser } from './shopping-list-user.entity';
 
 @Entity()
 export class ShoppingList {
@@ -33,4 +36,11 @@ export class ShoppingList {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @ManyToMany(() => ShoppingListUser)
+  @JoinTable()
+  authorizedUsers: ShoppingListUser[];
+
+  @Column({ type: 'boolean', default: false })
+  isShared: boolean;
 }
