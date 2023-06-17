@@ -5,7 +5,7 @@ import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private readonly reflector: Reflector) {
+  constructor(protected readonly reflector: Reflector) {
     super();
   }
 
