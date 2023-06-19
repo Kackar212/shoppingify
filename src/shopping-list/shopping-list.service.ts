@@ -27,7 +27,7 @@ export class ShoppingListService {
     private readonly shoppingListProductRepository: Repository<ShoppingListProduct>,
 
     @InjectRepository(ShoppingListUser)
-    private readonly shoppingListUserRepostory: Repository<ShoppingListUser>,
+    private readonly shoppingListUserRepository: Repository<ShoppingListUser>,
   ) {}
 
   public async updateProductQuantity(
@@ -78,7 +78,7 @@ export class ShoppingListService {
       throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`userId=${user.id} AND status=active`));
     }
 
-    const authorizedUsers = await this.shoppingListUserRepostory.save([
+    const authorizedUsers = await this.shoppingListUserRepository.save([
       { user, role: SHARED_LIST_USER_ROLE.OWNER },
     ]);
     return await this.shoppingListRepository.save({
