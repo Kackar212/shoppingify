@@ -16,11 +16,7 @@ export function IsEachObject(validationOptions?: ValidationOptions) {
             (element) => typeof element !== 'object' || element === null || Array.isArray(element),
           );
 
-          if (!isEachObject) {
-            return false;
-          }
-
-          return true;
+          return isEachObject;
         },
         defaultMessage: (validationArguments?: ValidationArguments): string =>
           `${validationArguments?.property} must be an array of objects`,
