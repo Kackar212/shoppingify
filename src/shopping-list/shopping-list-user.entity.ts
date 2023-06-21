@@ -1,7 +1,6 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
 import { User } from 'src/user/user.entity';
-import { ShoppingList } from './shopping-list.entity';
 
 @Entity()
 export class ShoppingListUser {
@@ -14,5 +13,10 @@ export class ShoppingListUser {
   role: SHARED_LIST_USER_ROLE;
 
   @ManyToOne(() => User)
+  @JoinColumn({
+    name: 'user_email',
+    referencedColumnName: 'email',
+    foreignKeyConstraintName: 'fk_user_email',
+  })
   user: User;
 }
