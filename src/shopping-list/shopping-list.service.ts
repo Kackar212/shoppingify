@@ -253,7 +253,18 @@ export class ShoppingListService {
   }
 
   public async get(id: number, { take = 50, page = 1 }: PaginationQueryDto, user: User) {
-    const shoppingList = await this.shoppingListRepository.findOne({ where: { id, user } });
+    const shoppingList = await this.shoppingListRepository.findOne({
+      where: [
+        { id, user },
+        { id, authorizedUsers: { user: { id: user.id } } },
+      ],
+      relations: {
+        authorizedUsers: {
+          user: true,
+        },
+      },
+      relationLoadStrategy: 'query',
+    });
 
     if (!shoppingList) {
       throw new NotFoundEntity(
