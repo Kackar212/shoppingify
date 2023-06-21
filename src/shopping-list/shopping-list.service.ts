@@ -307,4 +307,26 @@ export class ShoppingListService {
       };
     });
   }
+
+  public async share(body: ShareShoppingListDto, shoppingList: ShoppingList) {
+    const { authorizedUsers, user: owner } = shoppingList;
+
+    body.users = this.removeOwnerFromUserList(body, owner);
+
+    const newUsers = this.getNewUsers(body, authorizedUsers);
+    const oldUsers = this.getOldUsers(body, authorizedUsers);
+
+    const users = await this.shoppingListUserRepository.save([...oldUsers, ...newUsers]);
+
+    shoppingList.isShared = true;
+    shoppingList.authorizedUsers = users;
+
+    const updatedShoppingList = await this.shoppingListRepository.save(shoppingList);
+
+    return {
+      status: HttpStatus.OK,
+      data: updatedShoppingList,
+      message: ResponseMessage.ListShared,
+    };
+  }
 }

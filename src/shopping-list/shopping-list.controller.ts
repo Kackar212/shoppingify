@@ -23,9 +23,13 @@ import { ResponseMessage } from 'src/common/constants';
 import { UpdateShoppingListProductQuantityDto } from './dto/update-shopping-list-product.dto';
 import { PaginationInterceptor } from 'src/common/interceptors/pagination.interceptor';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { Param } from '@nestjs/common/decorators';
+import { Param, Req } from '@nestjs/common/decorators';
 import { ParseIntPipe } from '@nestjs/common/pipes';
 import { ShoppingListProduct } from './shopping-list-product.entity';
+import { ShareShoppingListDto } from './dto/share-shopping-list.dto';
+import { SharedShoppingListRoles } from 'src/shopping-list/decorators/shared-shopping-list-roles.decorator';
+import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
+import { RequestWithShoppingList } from 'src/common/interfaces/request-with-shopping-list.interface';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -104,5 +108,14 @@ export class ShoppingListController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ResponseDto<ShoppingList>> {
     return this.shoppingListService.get(id, paginationQuery, user);
+  }
+
+  @Patch('/share')
+  @SharedShoppingListRoles([SHARED_LIST_USER_ROLE.CO_OWNER])
+  share(
+    @Body() shareShoppingListBody: ShareShoppingListDto,
+    @Req() { shoppingList }: RequestWithShoppingList,
+  ) {
+    return this.shoppingListService.share(shareShoppingListBody, shoppingList);
   }
 }
