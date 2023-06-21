@@ -329,7 +329,7 @@ export class ShoppingListService {
 
     const users = await this.shoppingListUserRepository.save([...oldUsers, ...newUsers]);
 
-    shoppingList.isShared = true;
+    shoppingList.isShared = body.isShared;
     shoppingList.authorizedUsers = users;
 
     const updatedShoppingList = await this.shoppingListRepository.save(shoppingList);
