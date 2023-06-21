@@ -11,7 +11,7 @@ export class User {
   @Column({ unique: true })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, foreignKeyConstraintName: 'fk_user_email' })
   @Exclude()
   email: string;
 
