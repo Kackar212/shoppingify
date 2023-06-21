@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsInt, IsString, ValidateNested } from 'class-validator';
 import { IsEachObject } from 'src/common/decorators/is-each-object.decorator';
 import { SHARED_LIST_USER_ROLE } from '../enums/shared-list-user-role.enum';
 
@@ -20,4 +20,7 @@ export class ShareShoppingListDto {
 
   @IsInt()
   id: number;
+
+  @IsBoolean()
+  isShared: boolean = true;
 }
