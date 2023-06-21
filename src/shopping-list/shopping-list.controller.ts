@@ -25,7 +25,6 @@ import { PaginationInterceptor } from 'src/common/interceptors/pagination.interc
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Param, Req } from '@nestjs/common/decorators';
 import { ParseIntPipe } from '@nestjs/common/pipes';
-import { ShoppingListProduct } from './shopping-list-product.entity';
 import { ShareShoppingListDto } from './dto/share-shopping-list.dto';
 import { SharedShoppingListRoles } from 'src/shopping-list/decorators/shared-shopping-list-roles.decorator';
 import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
@@ -111,7 +110,7 @@ export class ShoppingListController {
   }
 
   @Patch('/share')
-  @SharedShoppingListRoles([SHARED_LIST_USER_ROLE.CO_OWNER])
+  @SharedShoppingListRoles([SHARED_LIST_USER_ROLE.OWNER])
   share(
     @Body() shareShoppingListBody: ShareShoppingListDto,
     @Req() { shoppingList }: RequestWithShoppingList,
