@@ -286,4 +286,12 @@ export class ShoppingListService {
       return user.role !== SHARED_LIST_USER_ROLE.OWNER && user.email !== owner.email;
     });
   }
+
+  private getNewUsers(body: ShareShoppingListDto, authorizedUsers: ShoppingListUser[]) {
+    return body.users
+      .filter((newUser) => {
+        return !authorizedUsers.find(({ user }) => user.email === newUser.email);
+      })
+      .map((newUser) => ({ user: { email: newUser.email }, role: newUser.role }));
+  }
 }
