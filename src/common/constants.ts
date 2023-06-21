@@ -17,6 +17,7 @@ export const ResponseMessage = {
   SearchedCategories: 'All Categories with given name',
   AllLists: 'All lists',
   ListFound: 'List found!',
+  ListShared: 'List shared successfully!',
 } as const;
 
 export const DatabaseError = {
