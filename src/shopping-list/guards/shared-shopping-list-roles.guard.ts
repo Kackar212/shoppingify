@@ -5,6 +5,8 @@ import { Equal, Repository } from 'typeorm';
 import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
 import { User } from 'src/user/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
+import { Exceptions } from 'src/common/constants';
 
 @Injectable()
 export class SharedShoppingListRolesGuard extends JwtAuthGuard {
@@ -43,7 +45,7 @@ export class SharedShoppingListRolesGuard extends JwtAuthGuard {
     });
 
     if (!shoppingList) {
-      return false;
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`shoppingListId=${body.id}`));
     }
 
     request.shoppingList = shoppingList;
