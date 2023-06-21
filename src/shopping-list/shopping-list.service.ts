@@ -294,4 +294,17 @@ export class ShoppingListService {
       })
       .map((newUser) => ({ user: { email: newUser.email }, role: newUser.role }));
   }
+
+  private getOldUsers(body: ShareShoppingListDto, authorizedUsers: ShoppingListUser[]) {
+    return authorizedUsers.map((oldUser) => {
+      const { user: authorizedUser } = oldUser;
+      const { role = oldUser.role } =
+        body.users.find((user) => authorizedUser.email === user.email) || {};
+
+      return {
+        ...oldUser,
+        role,
+      };
+    });
+  }
 }
