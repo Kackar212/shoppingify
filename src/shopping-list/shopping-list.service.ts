@@ -16,6 +16,7 @@ import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { getPaginationFindOptions } from 'src/common/utilities';
 import { ShoppingListUser } from './shopping-list-user.entity';
 import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
+import { ShareShoppingListDto } from './dto/share-shopping-list.dto';
 
 @Injectable()
 export class ShoppingListService {
@@ -278,5 +279,11 @@ export class ShoppingListService {
       },
       status: HttpStatus.OK,
     };
+  }
+
+  private removeOwnerFromUserList(body: ShareShoppingListDto, owner: User) {
+    return body.users.filter((user) => {
+      return user.role !== SHARED_LIST_USER_ROLE.OWNER && user.email !== owner.email;
+    });
   }
 }
