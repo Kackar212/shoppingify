@@ -23,10 +23,11 @@ export class SharedShoppingListRolesGuard extends JwtAuthGuard {
 
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
-    const body = request.body;
+    const { body, params } = request;
     const roles = this.reflector.get('roles', context.getHandler());
+    const shoppingListId = body.id || params.id;
 
-    if (!body.id) {
+    if (!shoppingListId) {
       return true;
     }
 
@@ -35,7 +36,7 @@ export class SharedShoppingListRolesGuard extends JwtAuthGuard {
     }
 
     const shoppingList = await this.shoppingListRepository.findOne({
-      where: { id: Equal(body.id) },
+      where: { id: Equal(shoppingListId) },
       relations: {
         user: true,
         authorizedUsers: {
@@ -45,7 +46,7 @@ export class SharedShoppingListRolesGuard extends JwtAuthGuard {
     });
 
     if (!shoppingList) {
-      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`shoppingListId=${body.id}`));
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`shoppingListId=${shoppingListId}`));
     }
 
     request.shoppingList = shoppingList;
