@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsEnum, IsInt, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { IsEachObject } from 'src/common/decorators/is-each-object.decorator';
 import { SHARED_LIST_USER_ROLE } from '../enums/shared-list-user-role.enum';
 
@@ -8,6 +16,7 @@ class User {
   email: string;
 
   @IsEnum(SHARED_LIST_USER_ROLE)
+  @IsOptional()
   role: SHARED_LIST_USER_ROLE;
 }
 
