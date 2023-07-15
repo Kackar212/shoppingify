@@ -298,46 +298,54 @@ export class ShoppingListService {
     });
   }
 
-  private getNewUsers(body: ShareShoppingListDto, authorizedUsers: ShoppingListUser[]) {
-    return body.users
-      .filter((newUser) => {
-        return !authorizedUsers.find(({ user }) => user.email === newUser.email);
-      })
-      .map((newUser) => ({ user: { email: newUser.email }, role: newUser.role }));
-  }
-
-  private getOldUsers(body: ShareShoppingListDto, authorizedUsers: ShoppingListUser[]) {
-    return authorizedUsers.map((oldUser) => {
-      const { user: authorizedUser } = oldUser;
-      const { role = oldUser.role } =
-        body.users.find((user) => authorizedUser.email === user.email) || {};
-
-      return {
-        ...oldUser,
-        role,
-      };
-    });
-  }
-
   public async share(body: ShareShoppingListDto, shoppingList: ShoppingList) {
     const { authorizedUsers, user: owner } = shoppingList;
 
     body.users = this.removeOwnerFromUserList(body, owner);
 
-    const newUsers = this.getNewUsers(body, authorizedUsers);
-    const oldUsers = this.getOldUsers(body, authorizedUsers);
-
-    const users = await this.shoppingListUserRepository.save([...oldUsers, ...newUsers]);
-
     shoppingList.isShared = body.isShared;
-    shoppingList.authorizedUsers = users;
 
-    const updatedShoppingList = await this.shoppingListRepository.save(shoppingList);
+    const filteredAuthorizedUsers = authorizedUsers.reduce<Array<ShoppingListUser>>(
+      (result, authorizedUser) => {
+        const index = body.users.findIndex(
+          (newUser) => authorizedUser.user?.email === newUser.email,
+        );
+        const user = body.users[index];
 
-    return {
-      status: HttpStatus.OK,
-      data: updatedShoppingList,
-      message: ResponseMessage.ListShared,
-    };
+        if (!user) {
+          result.push(authorizedUser);
+
+          return result;
+        }
+
+        body.users.splice(index, 1);
+
+        if (!user.role) {
+          return result;
+        }
+
+        result.push({ ...authorizedUser, role: user.role });
+
+        return result;
+      },
+      [],
+    );
+
+    try {
+      shoppingList.authorizedUsers = await this.shoppingListUserRepository.save([
+        ...filteredAuthorizedUsers,
+        ...body.users.map(({ email, role }) => ({ user: { email }, role })),
+      ]);
+
+      const updatedShoppingList = await this.shoppingListRepository.save(shoppingList);
+
+      return {
+        status: HttpStatus.OK,
+        data: updatedShoppingList,
+        message: ResponseMessage.ListShared,
+      };
+    } catch (e) {
+      throw new BadRequestException(Exceptions.BAD_REQUEST);
+    }
   }
 }
