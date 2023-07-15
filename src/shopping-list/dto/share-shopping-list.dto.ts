@@ -2,17 +2,17 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsInt,
   IsOptional,
-  IsString,
   ValidateNested,
 } from 'class-validator';
 import { IsEachObject } from 'src/common/decorators/is-each-object.decorator';
 import { SHARED_LIST_USER_ROLE } from '../enums/shared-list-user-role.enum';
 
 class User {
-  @IsString()
+  @IsEmail()
   email: string;
 
   @IsEnum(SHARED_LIST_USER_ROLE)
