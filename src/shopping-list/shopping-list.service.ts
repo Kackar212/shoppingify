@@ -236,7 +236,15 @@ export class ShoppingListService {
 
   public async getAll(user: User, { take = 50, page = 1 }: PaginationQueryDto) {
     const [lists, total] = await this.shoppingListRepository.findAndCount({
-      where: { user, status: Not(STATUS.ACTIVE) },
+      where: [
+        { user, status: Not(STATUS.ACTIVE) },
+        { authorizedUsers: { user: { id: user.id } }, status: Not(STATUS.ACTIVE) },
+      ],
+      relations: {
+        authorizedUsers: {
+          user: true,
+        },
+      },
       ...getPaginationFindOptions(take, page),
     });
 
