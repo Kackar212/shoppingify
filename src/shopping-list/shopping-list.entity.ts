@@ -37,8 +37,7 @@ export class ShoppingList {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToMany(() => ShoppingListUser)
-  @JoinTable()
+  @OneToMany(() => ShoppingListUser, (user) => user.shoppingList, { cascade: true })
   authorizedUsers: ShoppingListUser[];
 
   @Column({ type: 'boolean', default: false })
