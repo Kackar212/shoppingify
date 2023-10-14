@@ -5,7 +5,7 @@ import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
-import { Not, Repository } from 'typeorm';
+import { Any, Not, Repository } from 'typeorm';
 import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
@@ -17,6 +17,7 @@ import { getPaginationFindOptions } from 'src/common/utilities';
 import { ShoppingListUser } from './shopping-list-user.entity';
 import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
 import { ShareShoppingListDto } from './dto/share-shopping-list.dto';
+import { isEmail } from 'class-validator';
 
 @Injectable()
 export class ShoppingListService {
@@ -29,6 +30,9 @@ export class ShoppingListService {
 
     @InjectRepository(ShoppingListUser)
     private readonly shoppingListUserRepository: Repository<ShoppingListUser>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   public async updateProductQuantity(
@@ -248,6 +252,8 @@ export class ShoppingListService {
       ...getPaginationFindOptions(take, page),
     });
 
+    console.log(lists, user.id);
+
     return {
       message: ResponseMessage.AllLists,
       data: this.groupListsByMonthAndYear(lists),
@@ -311,45 +317,53 @@ export class ShoppingListService {
 
     body.users = this.removeOwnerFromUserList(body, owner);
 
-    shoppingList.isShared = body.isShared;
-
-    const filteredAuthorizedUsers = authorizedUsers.reduce<Array<ShoppingListUser>>(
-      (result, authorizedUser) => {
-        const index = body.users.findIndex(
-          (newUser) => authorizedUser.user?.email === newUser.email,
-        );
-        const user = body.users[index];
-
-        if (!user) {
-          result.push(authorizedUser);
-
-          return result;
-        }
-
-        body.users.splice(index, 1);
-
-        if (!user.role) {
-          return result;
-        }
-
-        result.push({ ...authorizedUser, role: user.role });
-
-        return result;
-      },
-      [],
-    );
-
-    try {
-      shoppingList.authorizedUsers = await this.shoppingListUserRepository.save([
-        ...filteredAuthorizedUsers,
-        ...body.users.map(({ email, role }) => ({ user: { email }, role })),
-      ]);
-
-      const updatedShoppingList = await this.shoppingListRepository.save(shoppingList);
+    const newOrUpdatedUsers = body.users.map((user, index) => {
+      const { email, name } = user;
+      const hasEmail = isEmail(email);
+      const where = hasEmail ? { email } : { name };
 
       return {
+        hasEmail,
+        where,
+        match: function (user: User) {
+          return hasEmail ? user.email === email : user.name === name;
+        },
+        index,
+        ...user,
+      };
+    });
+
+    shoppingList.isShared = body.isShared;
+
+    shoppingList.authorizedUsers = authorizedUsers.map((authorizedUser) => {
+      const user = newOrUpdatedUsers.find(({ match }) => match(authorizedUser.user));
+
+      if (!user) {
+        return authorizedUser;
+      }
+
+      newOrUpdatedUsers.splice(user.index, 1);
+
+      return { ...authorizedUser, role: user.role };
+    });
+
+    const ids = newOrUpdatedUsers.map(({ where }) => where);
+    const users = await this.userRepository.find({ where: [{ id: -1 }, ...ids] });
+
+    const newAuthorizedUsers = users.reduce<ShoppingListUser[]>((result, user) => {
+      const { role } = newOrUpdatedUsers.find(({ match }) => match(user))!;
+
+      result.push(this.shoppingListUserRepository.create({ user, role }));
+
+      return result;
+    }, []);
+
+    shoppingList.authorizedUsers.push(...newAuthorizedUsers);
+
+    try {
+      return {
         status: HttpStatus.OK,
-        data: updatedShoppingList,
+        data: await this.shoppingListRepository.save(shoppingList),
         message: ResponseMessage.ListShared,
       };
     } catch (e) {
