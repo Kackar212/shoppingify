@@ -1,17 +1,27 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
 import { Product } from 'src/products/product.entity';
+import { ShoppingListUser } from 'src/shopping-list/shopping-list-user.entity';
 
 @Entity()
+@Index(['name', 'email'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ unique: true })
+  @PrimaryColumn({ foreignKeyConstraintName: 'user_name' })
   name: string;
 
-  @Column({ unique: true, foreignKeyConstraintName: 'fk_user_email' })
+  @PrimaryColumn({ foreignKeyConstraintName: 'user_email' })
   @Exclude()
   email: string;
 
@@ -40,6 +50,15 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.user)
   products: Product[];
+
+  @OneToMany(() => ShoppingListUser, (user) => user.user)
+  @JoinColumn([
+    {
+      referencedColumnName: 'userName',
+    },
+    { referencedColumnName: 'userEmail' },
+  ])
+  shoppingListUsers: ShoppingListUser[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
