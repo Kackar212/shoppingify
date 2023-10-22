@@ -390,4 +390,18 @@ export class ShoppingListService {
       throw new BadRequestException(Exceptions.BAD_REQUEST);
     }
   }
+
+  async deleteList(id: number) {
+    const { affected } = await this.shoppingListRepository.delete(id);
+
+    if (!affected) {
+      throw new NotFoundEntity(Exceptions.NOT_FOUND_ENTITY(`id=${id}`));
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: {},
+      message: ResponseMessage.ListDeleted,
+    };
+  }
 }
