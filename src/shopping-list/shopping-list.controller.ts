@@ -29,6 +29,7 @@ import { ShareShoppingListDto } from './dto/share-shopping-list.dto';
 import { SharedShoppingListRoles } from 'src/shopping-list/decorators/shared-shopping-list-roles.decorator';
 import { SHARED_LIST_USER_ROLE } from './enums/shared-list-user-role.enum';
 import { RequestWithShoppingList } from 'src/common/interfaces/request-with-shopping-list.interface';
+import { DeleteListDto } from './dto/delete-list.dto';
 
 @Controller('shopping-list')
 export class ShoppingListController {
@@ -116,5 +117,11 @@ export class ShoppingListController {
     @Req() { shoppingList }: RequestWithShoppingList,
   ) {
     return this.shoppingListService.share(shareShoppingListBody, shoppingList);
+  }
+
+  @Delete('/delete')
+  @SharedShoppingListRoles([SHARED_LIST_USER_ROLE.OWNER])
+  deleteList(@Body() { id }: DeleteListDto) {
+    return this.shoppingListService.deleteList(id);
   }
 }
