@@ -13,7 +13,9 @@ export class ShoppingListUser {
   })
   role: SHARED_LIST_USER_ROLE;
 
-  @ManyToOne(() => ShoppingList, (shoppingList) => shoppingList.authorizedUsers)
+  @ManyToOne(() => ShoppingList, (shoppingList) => shoppingList.authorizedUsers, {
+    onDelete: 'CASCADE',
+  })
   shoppingList: ShoppingList;
 
   @ManyToOne(() => User, (user) => user)
