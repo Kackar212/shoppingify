@@ -248,11 +248,10 @@ export class ShoppingListService {
         authorizedUsers: {
           user: true,
         },
+        user: true,
       },
       ...getPaginationFindOptions(take, page),
     });
-
-    console.log(lists, user.id);
 
     return {
       message: ResponseMessage.AllLists,
@@ -308,7 +307,11 @@ export class ShoppingListService {
 
   private removeOwnerFromUserList(body: ShareShoppingListDto, owner: User) {
     return body.users.filter((user) => {
-      return user.role !== SHARED_LIST_USER_ROLE.OWNER && user.email !== owner.email;
+      return (
+        user.email !== owner.email &&
+        user.name !== owner.name &&
+        user.role !== SHARED_LIST_USER_ROLE.OWNER
+      );
     });
   }
 
@@ -350,6 +353,20 @@ export class ShoppingListService {
     const ids = newOrUpdatedUsers.map(({ where }) => where);
     const users = await this.userRepository.find({ where: [{ id: -1 }, ...ids] });
 
+    if (users.length !== ids.length) {
+      throw new BadRequestException(Exceptions.BAD_REQUEST);
+    }
+
+    const usersToRemove = body.users
+      .filter(({ role }) => !role)
+      .map(({ email, name }) => {
+        const hasEmail = isEmail(email);
+
+        return function ({ user }: ShoppingListUser) {
+          return hasEmail ? user.email === email : user.name === name;
+        };
+      });
+
     const newAuthorizedUsers = users.reduce<ShoppingListUser[]>((result, user) => {
       const { role } = newOrUpdatedUsers.find(({ match }) => match(user))!;
 
@@ -359,6 +376,9 @@ export class ShoppingListService {
     }, []);
 
     shoppingList.authorizedUsers.push(...newAuthorizedUsers);
+    shoppingList.authorizedUsers = shoppingList.authorizedUsers.filter((authorizedUser) => {
+      return !usersToRemove.find((userToRemove) => userToRemove(authorizedUser));
+    });
 
     try {
       return {
