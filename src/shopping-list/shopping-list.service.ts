@@ -5,7 +5,7 @@ import { DatabaseError, Exceptions, ResponseMessage } from 'src/common/constants
 import { NotFoundEntity } from 'src/common/exceptions/not-found-entity.exception';
 import { STATUS } from 'src/shopping-list/enums/status.enum';
 import { User } from 'src/user/user.entity';
-import { Any, Not, Repository } from 'typeorm';
+import { Between, Not, Repository } from 'typeorm';
 import { RemoveListProductDto } from './dto/remove-list-product.dto';
 import { ShoppingListProductDto } from './dto/shopping-list-product.dto';
 import { ShoppingListProduct } from './shopping-list-product.entity';
@@ -216,7 +216,9 @@ export class ShoppingListService {
     };
   }
 
-  public groupListsByMonthAndYear(lists: ShoppingList[]) {
+  public groupListsByMonthAndYear(
+    lists: ShoppingList[],
+  ): Array<[[string, number], ShoppingList[]]> {
     const listsGroupedByDate = lists.reduce((result, list) => {
       const month = list.createdAt.toLocaleDateString('en-US', { month: 'long' });
       const year = list.createdAt.getFullYear();
@@ -402,6 +404,90 @@ export class ShoppingListService {
       status: HttpStatus.OK,
       data: {},
       message: ResponseMessage.ListDeleted,
+    };
+  }
+
+  async getStatistics(user: User) {
+    const date = new Date();
+    const year = date.getFullYear();
+    const whereBetweenOperator = Between(new Date(year, 0), new Date());
+
+    const createBaseQuery = (path: string) => {
+      return this.shoppingListRepository
+        .createQueryBuilder('shoppingList')
+        .leftJoin('shoppingList.user', 'user')
+        .where({
+          createdAt: whereBetweenOperator,
+          status: STATUS.COMPLETED,
+          user,
+        })
+        .leftJoin('shoppingList.products', 'products')
+        .innerJoinAndSelect('products.product', 'product')
+        .addSelect(`COUNT(${path}) as count`)
+        .groupBy(path)
+        .orderBy('count', 'DESC')
+        .take(3)
+        .clone();
+    };
+
+    const topProducts = await createBaseQuery('product.name').getRawMany();
+    const topCategories = await createBaseQuery('category.name')
+      .innerJoinAndSelect('product.category', 'category')
+      .getRawMany();
+
+    const shoppingLists = await this.shoppingListRepository.find({
+      where: {
+        createdAt: whereBetweenOperator,
+        user,
+      },
+      relations: {
+        products: true,
+        user: true,
+      },
+    });
+
+    const products = Array.from({ length: 12 }, (_, monthIndex) => {
+      return new Date(0, monthIndex).toLocaleDateString('en-US', { month: 'long' });
+    }).reduce<Record<string, number>>((result, month) => {
+      result[month] = 0;
+
+      return result;
+    }, {});
+
+    const itemsByMonth = Object.entries(
+      this.groupListsByMonthAndYear(shoppingLists).reduce<Record<string, number>>(
+        (products, [[month], shoppingLists]) => {
+          if (!products[month]) {
+            products[month] = 0;
+          }
+
+          products[month] += shoppingLists.reduce<number>((result, shoppingList) => {
+            return result + shoppingList.products.length;
+          }, 0);
+
+          return products;
+        },
+        products,
+      ),
+    ).map(([month, items]) => ({ month, items }));
+
+    const productTotalCount = shoppingLists.reduce(
+      (count, { products }) => count + products.length,
+      0,
+    );
+
+    return {
+      message: ResponseMessage.Statistics,
+      data: {
+        itemsByMonth,
+        popularItems: topProducts.map(({ count, product_name }) => {
+          return { name: product_name, value: count / productTotalCount };
+        }),
+        popularCategories: topCategories.map(({ count, category_name }) => {
+          return { name: category_name, value: count / productTotalCount };
+        }),
+      },
+      status: HttpStatus.OK,
     };
   }
 }
