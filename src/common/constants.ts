@@ -19,6 +19,7 @@ export const ResponseMessage = {
   ListFound: 'List found!',
   ListShared: 'List shared successfully!',
   ListDeleted: 'List deleted successfully!',
+  Statistics: 'Shopping statistics!',
 } as const;
 
 export const DatabaseError = {
