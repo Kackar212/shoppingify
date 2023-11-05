@@ -92,6 +92,12 @@ export class ShoppingListController {
     return this.shoppingListService.saveList(user, name);
   }
 
+  @Get('/statistics')
+  @UseGuards(JwtAuthGuard)
+  getStatistics(@User() user: UserEntity) {
+    return this.shoppingListService.getStatistics(user);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(PaginationInterceptor)
