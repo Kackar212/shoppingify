@@ -1,27 +1,18 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
 import { Product } from 'src/products/product.entity';
 import { ShoppingListUser } from 'src/shopping-list/shopping-list-user.entity';
 
 @Entity()
-@Index(['name', 'email'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @PrimaryColumn({ foreignKeyConstraintName: 'user_name' })
+  @Column({ unique: true })
   name: string;
 
-  @PrimaryColumn({ foreignKeyConstraintName: 'user_email' })
+  @Column({ unique: true })
   @Exclude()
   email: string;
 
