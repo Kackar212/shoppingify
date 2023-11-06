@@ -8,6 +8,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { DatabaseError, ExceptionCode, Exceptions, ResponseMessage } from 'src/common/constants';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ForbiddenException } from '@nestjs/common/exceptions';
 
 const ACTIVATION_PAGE_PATH = 'auth/activate-account';
 
@@ -33,21 +34,24 @@ export class AuthService {
         throw new BadRequestException(Exceptions.WRONG_CREDENTIALS);
       }
 
+      if (!user.isActive) {
+        throw new ForbiddenException({
+          code: 'ACCOUNT_NOT_ACTIVATE',
+          message: 'Activate your account!',
+        });
+      }
+
       return user;
     } catch (e) {
       const { code } = e.getResponse();
 
       switch (code) {
-        case ExceptionCode.WRONG_CREDENTIALS: {
-          throw e;
-        }
-
         case ExceptionCode.NOT_FOUND_ENTITY: {
           throw new BadRequestException(Exceptions.WRONG_CREDENTIALS);
         }
 
         default: {
-          throw new BadRequestException(Exceptions.BAD_REQUEST);
+          throw e;
         }
       }
     }
