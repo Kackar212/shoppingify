@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ShoppingList } from 'src/shopping-list/shopping-list.entity';
 import { Product } from 'src/products/product.entity';
@@ -32,9 +32,9 @@ export class User {
   @Exclude()
   activationToken?: string;
 
-  @Column({ default: false })
+  @Column({ nullable: true, type: 'timestamp' })
   @Exclude()
-  isPasswordReseted: boolean;
+  passwordResetedAt?: Date;
 
   @OneToMany(() => ShoppingList, (shoppingList) => shoppingList.user)
   shoppingLists: ShoppingList[];
