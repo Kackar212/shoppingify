@@ -20,9 +20,9 @@ import { ResponseDto } from 'src/common/dto/response.dto';
 import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-jwt-auth.guard';
 import { ActivationJwtAuthGuard } from './guards/activation-token.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RedirectDto } from '../common/dto/redirect.dto';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { AccountActivationQueryDto } from './dto/account-activation-query.dto';
+import { ResendActivationMailDto } from './dto/resend-activation-mail.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -70,13 +70,11 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   @Post('resend-activation-mail')
   public async resendActivationMail(
-    @User() user: UserEntity,
-    @Body() { redirect }: RedirectDto,
+    @Body() { redirect, email }: ResendActivationMailDto,
   ): Promise<ResponseDto<{}>> {
-    return this.authService.resendActivationMail(user, redirect);
+    return this.authService.resendActivationMail(email, redirect);
   }
 
   @HttpCode(HttpStatus.OK)
