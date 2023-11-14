@@ -209,15 +209,25 @@ export class AuthService {
     }
   }
 
-  public async resendActivationMail(user: User, redirect: string) {
+  public async resendActivationMail(email: string, redirect: string) {
+    const user = await this.userService.findByEmail(email);
+
     if (user.isActive) {
-      throw new ConflictException(Exceptions.ACCOUNT_ALREADY_ACTIVATED);
+      return {
+        message: ResponseMessage.ActivationMailResent,
+        data: {},
+        status: HttpStatus.OK,
+      };
     }
 
     const isUserActivationTokenInvalid = await this.isActivationTokenInvalid(user.activationToken!);
 
     if (!isUserActivationTokenInvalid) {
-      throw new ConflictException(Exceptions.TOKEN_STILL_VALID);
+      return {
+        message: ResponseMessage.ActivationMailResent,
+        data: {},
+        status: HttpStatus.OK,
+      };
     }
 
     const activationToken = await this.createActivationToken(user.name);
@@ -245,8 +255,13 @@ export class AuthService {
 
   public async sendNewPassword(email: string) {
     const user = await this.userService.findByEmail(email);
+    const { passwordResetedAt = new Date() } = user;
 
-    if (user.isPasswordReseted) {
+    const MILLISECONDS_IN_MINUTE = 1000 * 60;
+    const MILLISECONDS_IN_THIRTY_MINUTES = 30 * MILLISECONDS_IN_MINUTE;
+    const diff = Date.now() - +passwordResetedAt;
+
+    if (diff < MILLISECONDS_IN_THIRTY_MINUTES) {
       throw new ConflictException(Exceptions.PASSWORD_ALREADY_RESETED);
     }
 
@@ -260,7 +275,7 @@ export class AuthService {
     await this.userService.update(user.name, {
       ...user,
       password: hashedNewPassword,
-      isPasswordReseted: true,
+      passwordResetedAt: new Date(),
     });
 
     this.sendNewPasswordMail(user.email, newPassword);
