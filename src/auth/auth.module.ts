@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 import { RefreshTokenStrategy } from 'src/auth/strategies/refresh-token.strategy';
 import { ActivationTokenStrategy } from './strategies/activation-token.strategy';
+import { ResetPasswordTokenStrategy } from './strategies/reset-password-token.strategy';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ActivationTokenStrategy } from './strategies/activation-token.strategy'
     JwtStrategy,
     RefreshTokenStrategy,
     ActivationTokenStrategy,
+    ResetPasswordTokenStrategy
   ],
   controllers: [AuthController],
 })

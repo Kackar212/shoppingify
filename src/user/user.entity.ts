@@ -32,6 +32,10 @@ export class User {
   @Exclude()
   activationToken?: string;
 
+  @Column({ nullable: true })
+  @Exclude()
+  resetPasswordToken?: string;
+
   @Column({ nullable: true, type: 'timestamp' })
   @Exclude()
   passwordResetedAt?: Date;

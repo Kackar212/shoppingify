@@ -23,6 +23,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { AccountActivationQueryDto } from './dto/account-activation-query.dto';
 import { ResendActivationMailDto } from './dto/resend-activation-mail.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
+import { ResetPasswordJwtAuthGuard } from './guards/reset-password-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -78,9 +81,15 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('reset-password')
-  public resetPassword(@Body() { email }: NewPasswordDto): Promise<ResponseDto<{}>> {
-    return this.authService.sendNewPassword(email);
+  @UseGuards(ResetPasswordJwtAuthGuard)
+  @Post('reset-password/:token')
+  public resetPassword(@User() user: UserEntity, @Body() { newPassword }: ResetPasswordDto): Promise<ResponseDto<{}>> {
+    return this.authService.resetPassword(user, newPassword);
+  }
+
+  @Post('reset-password-request')
+  public resetPasswordRequest(@Body() { email, clientUrl }: ResetPasswordRequestDto) {
+    return this.authService.resetPasswordRequest(email, clientUrl);
   }
 
   @HttpCode(HttpStatus.OK)

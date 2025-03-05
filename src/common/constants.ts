@@ -20,6 +20,8 @@ export const ResponseMessage = {
   ListShared: 'List shared successfully!',
   ListDeleted: 'List deleted successfully!',
   Statistics: 'Shopping statistics!',
+  ResetPassword: 'Your password has been changed!',
+  ResetPasswordRequest: 'Check your email address and follow the link!',
 } as const;
 
 export const DatabaseError = {

@@ -84,4 +84,20 @@ export class UserService {
 
     return user;
   }
+
+  public async getUserIfResetPasswordTokenMatches(name: string, resetPasswordToken: string) {
+    const user = await this.findByName(name);
+
+    if (!user.resetPasswordToken) {
+      return null;
+    }
+
+    const isResetPasswordTokenEqual = resetPasswordToken === user.resetPasswordToken;
+
+    if (!isResetPasswordTokenEqual) {
+      return null;
+    }
+
+    return user;
+  }
 }

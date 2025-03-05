@@ -242,49 +242,92 @@ export class AuthService {
     };
   }
 
-  private sendNewPasswordMail(email: string, newPassword: string) {
+  private sendResetPasswordRequestMail(email: string, clientUrl: string, token: string) {
+    const url = new URL(`auth/reset-password/${token}`, clientUrl);
+
     this.mailerService.sendMail({
       to: email,
-      subject: 'New password request',
-      template: 'new-password',
+      subject: 'Reset password request',
+      template: 'reset-password',
       context: {
-        newPassword,
+        url,
       },
     });
   }
 
-  public async sendNewPassword(email: string) {
-    const user = await this.userService.findByEmail(email);
-    const { passwordResetedAt = new Date() } = user;
+  // public async sendNewPassword(email: string) {
+  //   const user = await this.userService.findByEmail(email);
+  //   const { passwordResetedAt = new Date() } = user;
 
-    const MILLISECONDS_IN_MINUTE = 1000 * 60;
-    const MILLISECONDS_IN_THIRTY_MINUTES = 30 * MILLISECONDS_IN_MINUTE;
-    const diff = Date.now() - +passwordResetedAt;
+  //   const MILLISECONDS_IN_MINUTE = 1000 * 60;
+  //   const MILLISECONDS_IN_THIRTY_MINUTES = 30 * MILLISECONDS_IN_MINUTE;
+  //   const diff = Date.now() - +passwordResetedAt;
 
-    if (diff < MILLISECONDS_IN_THIRTY_MINUTES) {
-      throw new ConflictException(Exceptions.PASSWORD_ALREADY_RESETED);
-    }
+  //   if (diff < MILLISECONDS_IN_THIRTY_MINUTES) {
+  //     throw new ConflictException(Exceptions.PASSWORD_ALREADY_RESETED);
+  //   }
 
-    const { randomBytes } = await import('node:crypto');
+  //   const { randomBytes } = await import('node:crypto');
 
-    const newPassword = randomBytes(24).toString('base64').substring(0, 30);
+  //   const newPassword = randomBytes(24).toString('base64').substring(0, 30);
 
+  //   const hashRounds = 10;
+  //   const hashedNewPassword = await bcrypt.hash(newPassword, hashRounds);
+
+  //   await this.userService.update(user.name, {
+  //     ...user,
+  //     password: hashedNewPassword,
+  //     passwordResetedAt: new Date(),
+  //   });
+
+  //   this.sendNewPasswordMail(user.email, newPassword);
+
+  //   return {
+  //     message: ResponseMessage.NewPassword,
+  //     data: {},
+  //     status: HttpStatus.OK,
+  //   };
+  // }
+
+  async resetPassword(user: User, newPassword: string) {
     const hashRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(newPassword, hashRounds);
 
     await this.userService.update(user.name, {
-      ...user,
-      password: hashedNewPassword,
-      passwordResetedAt: new Date(),
+      password: await bcrypt.hash(newPassword, hashRounds),
+      resetPasswordToken: '',
     });
 
-    this.sendNewPasswordMail(user.email, newPassword);
-
     return {
-      message: ResponseMessage.NewPassword,
+      message: ResponseMessage.ResetPassword,
       data: {},
       status: HttpStatus.OK,
-    };
+    }
+  }
+
+  async resetPasswordRequest(email: string, clientUrl: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      return {
+        message: ResponseMessage.ResetPasswordRequest,
+        data: {},
+        status: 200,
+      }
+    }
+
+    const token = await this.createActivationToken(user.name);
+
+    this.sendResetPasswordRequestMail(email, clientUrl, token);
+
+    this.userService.update(user.name, {
+      resetPasswordToken: token,
+    });
+
+    return {
+      message: ResponseMessage.ResetPasswordRequest,
+      data: {},
+      status: 200,
+    }
   }
 
   public async logout(user: User, request: Request) {
